@@ -15,6 +15,8 @@ import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.PreSellHouseAdapter;
 import com.ray.chengdubuyhouse.bean.PreSellHouseBean;
 import com.ray.chengdubuyhouse.parser.HtmlParser;
+import com.ray.lib.loading.LoadingViewController;
+import com.ray.lib.loading.LoadingViewManager;
 
 import java.util.List;
 
@@ -28,6 +30,7 @@ import io.reactivex.disposables.Disposable;
 public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, HtmlParser.DataCallback {
 
     private PreSellHouseAdapter mAdapter;
+    private LoadingViewController mLoadingViewController;
 
     @Nullable
     @Override
@@ -38,6 +41,7 @@ public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mLoadingViewController = LoadingViewManager.register(view);
         ((SwipeRefreshLayout)view).setOnRefreshListener(this);
         RecyclerView recyclerPreSell = view.findViewById(R.id.recycler_pre_sell);
         recyclerPreSell.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -48,6 +52,7 @@ public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mLoadingViewController.switchLoading();
         HtmlParser.getInstance().parseHtml(null, this);
     }
 
@@ -67,11 +72,16 @@ public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout
         if (view != null && view instanceof SwipeRefreshLayout) {
             ((SwipeRefreshLayout)view).setRefreshing(false);
         }
-        mAdapter.setData(datas);
+        if (datas == null || datas.size() < 1) {
+            mLoadingViewController.switchEmpty();
+        } else {
+            mAdapter.setData(datas);
+            mLoadingViewController.switchSuccess();
+        }
     }
 
     @Override
     public void onError(Throwable e) {
-
+        mLoadingViewController.switchError();
     }
 }

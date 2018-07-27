@@ -13,12 +13,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ray.chengdubuyhouse.parser.HtmlParser;
+import com.ray.lib.loading.LoadingViewController;
+import com.ray.lib.loading.LoadingViewManager;
 
 import java.util.List;
 
 import io.reactivex.disposables.Disposable;
 
 public class PreSellDetailActivity extends BaseActivity {
+
+    private LoadingViewController mLoadingViewController;
 
     public static void launch(Context context, String url) {
         Intent startIntent = new Intent(context, PreSellDetailActivity.class);
@@ -32,9 +36,11 @@ public class PreSellDetailActivity extends BaseActivity {
         setContentView(R.layout.activity_pre_sell_detail);
         setupToolBar(R.id.toolbar);
         final RecyclerView recyclerDetail = findViewById(R.id.recycler_detail);
+        mLoadingViewController = LoadingViewManager.register(recyclerDetail);
         recyclerDetail.setLayoutManager(new LinearLayoutManager(this));
         recyclerDetail.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         String url = getIntent().getStringExtra("url");
+        mLoadingViewController.switchLoading();
         HtmlParser.getInstance().parsePreSellDetailHtml(url, new HtmlParser.DetailCallback() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -43,12 +49,17 @@ public class PreSellDetailActivity extends BaseActivity {
 
             @Override
             public void onNext(List<String> datas) {
-                recyclerDetail.setAdapter(new DetailAdapter(datas));
+                if (datas == null || datas.size() < 1) {
+                    mLoadingViewController.switchEmpty();
+                } else {
+                    recyclerDetail.setAdapter(new DetailAdapter(datas));
+                    mLoadingViewController.switchSuccess();
+                }
             }
 
             @Override
             public void onError(Throwable e) {
-
+                mLoadingViewController.switchError();
             }
         });
     }
