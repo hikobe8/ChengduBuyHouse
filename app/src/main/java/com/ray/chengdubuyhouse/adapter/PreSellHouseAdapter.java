@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.ray.chengdubuyhouse.PreSellDetailActivity;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.bean.PreSellHouseBean;
 
@@ -53,11 +54,18 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<PreSellHouseAdapte
         TextView tvDate;
         private PreSellHouseBean mSellHouseBean;
 
-        PreSellHolder(View itemView) {
+        PreSellHolder(final View itemView) {
             super(itemView);
             tvAddress = itemView.findViewById(R.id.tv_address);
             tvName = itemView.findViewById(R.id.tv_name);
             tvDate = itemView.findViewById(R.id.tv_date);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mSellHouseBean != null)
+                        PreSellDetailActivity.launch(itemView.getContext(), mSellHouseBean.getLink());
+                }
+            });
         }
 
         public void bind(PreSellHouseBean houseBean) {

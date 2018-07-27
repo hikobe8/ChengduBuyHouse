@@ -25,6 +25,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class HtmlParser {
 
+    private static final String HOST="https://www.cdfangxie.com";
     public static final String TAG = "HtmlParser";
 
     public static HtmlParser getInstance() {
@@ -80,6 +81,58 @@ public class HtmlParser {
 
                     @Override
                     public void onNext(List<PreSellHouseBean> list) {
+                        if (callback != null)
+                            callback.onNext(list);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if (callback != null)
+                            callback.onError(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    public interface DetailCallback{
+        void onSubscribe(Disposable d);
+        void onNext(List<String> datas);
+        void onError(Throwable e);
+    }
+
+
+    public void parsePreSellDetailHtml(final String url, final DetailCallback callback) {
+        Observable
+                .create(new ObservableOnSubscribe<List<String>>() {
+                    @Override
+                    public void subscribe(ObservableEmitter<List<String>> emitter) throws Exception {
+                        Document doc = Jsoup.connect(HOST + url).get();
+                        Elements select = doc.select("p.MsoNormal");
+                        List<Element> elements = select.subList(2, select.size());
+                        List<String> result = new ArrayList<>();
+                        for (Element pElement:elements) {
+                            Element spanElement = pElement.select("span").first();
+                            String string = spanElement.text();
+                            result.add(string);
+                        }
+                        emitter.onNext(result);
+                        emitter.onComplete();
+                    }
+                }).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<String>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        if (callback != null)
+                            callback.onSubscribe(d);
+                    }
+
+                    @Override
+                    public void onNext(List<String> list) {
                         if (callback != null)
                             callback.onNext(list);
                     }
