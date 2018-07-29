@@ -1,5 +1,8 @@
 package com.ray.chengdubuyhouse.parser;
 
+import android.util.Log;
+
+import com.ray.chengdubuyhouse.bean.BannerBean;
 import com.ray.chengdubuyhouse.bean.PreSellHouseBean;
 
 import org.jsoup.Jsoup;
@@ -25,7 +28,10 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class HtmlParser {
 
-    private static final String HOST="https://www.cdfangxie.com";
+    public static final String HOST="https://www.cdfangxie.com";
+
+    private static final String HOME_BANNER="https://www.cdfangxie.com";
+
     public static final String TAG = "HtmlParser";
 
     public static HtmlParser getInstance() {
@@ -104,7 +110,6 @@ public class HtmlParser {
         void onError(Throwable e);
     }
 
-
     public void parsePreSellDetailHtml(final String url, final DetailCallback callback) {
         Observable
                 .create(new ObservableOnSubscribe<List<String>>() {
@@ -133,6 +138,60 @@ public class HtmlParser {
 
                     @Override
                     public void onNext(List<String> list) {
+                        if (callback != null)
+                            callback.onNext(list);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if (callback != null)
+                            callback.onError(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    public interface BannerCallback {
+
+        void onSubscribe(Disposable d);
+        void onNext(List<BannerBean> datas);
+        void onError(Throwable e);
+
+    }
+
+    public void getBannerList(final BannerCallback callback){
+        Observable
+                .create(new ObservableOnSubscribe<List<BannerBean>>() {
+                    @Override
+                    public void subscribe(ObservableEmitter<List<BannerBean>> emitter) throws Exception {
+                        Document doc = Jsoup.connect(HOME_BANNER).get();
+                        Elements bannerWrapperList = doc.select("div.scrcont > div > a");
+                        List<BannerBean> result = new ArrayList<>();
+                        for (Element bannerWrapper : bannerWrapperList) {
+                            BannerBean bannerBean = new BannerBean();
+                            bannerBean.setName(bannerWrapper.selectFirst("span").text());
+                            bannerBean.setLink(HOST+bannerWrapper.attr("href"));
+                            bannerBean.setImageUrl(HOST+bannerWrapper.selectFirst("img").attr("src"));
+                            result.add(bannerBean);
+                        }
+                        emitter.onNext(result);
+                        emitter.onComplete();
+                    }
+                }).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<BannerBean>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        if (callback != null)
+                            callback.onSubscribe(d);
+                    }
+
+                    @Override
+                    public void onNext(List<BannerBean> list) {
                         if (callback != null)
                             callback.onNext(list);
                     }
