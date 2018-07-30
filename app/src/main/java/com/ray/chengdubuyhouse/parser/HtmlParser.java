@@ -1,7 +1,5 @@
 package com.ray.chengdubuyhouse.parser;
 
-import android.util.Log;
-
 import com.ray.chengdubuyhouse.bean.BannerBean;
 import com.ray.chengdubuyhouse.bean.PreSellHouseBean;
 

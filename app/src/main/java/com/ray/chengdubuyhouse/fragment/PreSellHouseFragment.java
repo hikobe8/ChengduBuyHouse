@@ -1,9 +1,9 @@
 package com.ray.chengdubuyhouse.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.ray.chengdubuyhouse.BaseFragment;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.PreSellHouseAdapter;
 import com.ray.chengdubuyhouse.bean.BannerBean;
@@ -28,7 +29,7 @@ import io.reactivex.disposables.Disposable;
  * Time : 2018/7/27 上午12:22
  * Description :
  */
-public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, HtmlParser.DataCallback {
+public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, HtmlParser.DataCallback {
 
     private PreSellHouseAdapter mAdapter;
     private LoadingViewController mLoadingViewController;
@@ -61,7 +62,7 @@ public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout
     private HtmlParser.BannerCallback mBannerCallback = new HtmlParser.BannerCallback() {
         @Override
         public void onSubscribe(Disposable d) {
-
+            addDisposable(d);
         }
 
         @Override
@@ -83,7 +84,7 @@ public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout
 
     @Override
     public void onSubscribe(Disposable d) {
-
+        addDisposable(d);
     }
 
     @Override
@@ -104,4 +105,5 @@ public class PreSellHouseFragment extends Fragment implements SwipeRefreshLayout
     public void onError(Throwable e) {
         mLoadingViewController.switchError();
     }
+
 }

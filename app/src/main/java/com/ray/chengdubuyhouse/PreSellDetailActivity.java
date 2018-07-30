@@ -44,7 +44,7 @@ public class PreSellDetailActivity extends BaseActivity {
         HtmlParser.getInstance().parsePreSellDetailHtml(url, new HtmlParser.DetailCallback() {
             @Override
             public void onSubscribe(Disposable d) {
-
+                addDisposable(d);
             }
 
             @Override
@@ -80,8 +80,8 @@ public class PreSellDetailActivity extends BaseActivity {
             final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, parent.getContext().getResources().getDisplayMetrics());
             marginLayoutParams.leftMargin = margin;
             marginLayoutParams.rightMargin = margin;
-            marginLayoutParams.topMargin = (int) (margin/2f + 0.5f);
-            marginLayoutParams.bottomMargin = (int) (margin/2f + 0.5f);
+            marginLayoutParams.topMargin = (int) (margin / 2f + 0.5f);
+            marginLayoutParams.bottomMargin = (int) (margin / 2f + 0.5f);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
             textView.setLayoutParams(marginLayoutParams);
             return new DetailHolder(textView);
@@ -104,7 +104,7 @@ public class PreSellDetailActivity extends BaseActivity {
             }
 
             void bindData(String text) {
-                ((TextView)itemView).setText(text);
+                ((TextView) itemView).setText(text);
             }
 
         }

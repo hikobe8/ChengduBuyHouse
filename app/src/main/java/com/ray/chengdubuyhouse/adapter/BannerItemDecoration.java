@@ -30,7 +30,7 @@ public class BannerItemDecoration extends DividerItemDecoration {
         if (position == 0) {
             outRect.set(mDividerSize,0, mDividerSize, 0);
         } else if (position == itemCount - 1) {
-            outRect.set(mDividerSize,0, mDividerSize, 0);
+            outRect.set(0 ,0, mDividerSize, 0);
         } else {
             outRect.set(0,0, mDividerSize, 0);
         }
