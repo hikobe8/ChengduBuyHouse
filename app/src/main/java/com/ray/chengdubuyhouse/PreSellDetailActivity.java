@@ -12,7 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ray.chengdubuyhouse.parser.HtmlParser;
+import com.ray.chengdubuyhouse.network.HtmlParser;
+import com.ray.chengdubuyhouse.network.processor.PreSellDetailParseProcessor;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 
@@ -41,7 +42,7 @@ public class PreSellDetailActivity extends BaseActivity {
         recyclerDetail.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         String url = getIntent().getStringExtra("url");
         mLoadingViewController.switchLoading();
-        HtmlParser.getInstance().parsePreSellDetailHtml(url, new HtmlParser.DetailCallback() {
+        HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor(), new HtmlParser.HtmlDataCallback<List<String>>() {
             @Override
             public void onSubscribe(Disposable d) {
                 addDisposable(d);
@@ -66,10 +67,10 @@ public class PreSellDetailActivity extends BaseActivity {
 
     static class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.DetailHolder> {
 
-        private List<String> mInfos;
+        private List<String> mInfoList;
 
-        public DetailAdapter(List<String> infos) {
-            mInfos = infos;
+        DetailAdapter(List<String> infoList) {
+            mInfoList = infoList;
         }
 
         @NonNull
@@ -89,12 +90,12 @@ public class PreSellDetailActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(@NonNull DetailHolder holder, int position) {
-            holder.bindData(mInfos.get(position));
+            holder.bindData(mInfoList.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mInfos.size();
+            return mInfoList.size();
         }
 
         class DetailHolder extends RecyclerView.ViewHolder {

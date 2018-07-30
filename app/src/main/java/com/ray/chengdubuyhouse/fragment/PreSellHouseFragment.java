@@ -1,6 +1,5 @@
 package com.ray.chengdubuyhouse.fragment;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,7 +15,10 @@ import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.PreSellHouseAdapter;
 import com.ray.chengdubuyhouse.bean.BannerBean;
 import com.ray.chengdubuyhouse.bean.PreSellHouseBean;
-import com.ray.chengdubuyhouse.parser.HtmlParser;
+import com.ray.chengdubuyhouse.network.HtmlParser;
+import com.ray.chengdubuyhouse.network.NetworkConstant;
+import com.ray.chengdubuyhouse.network.processor.BannerParseProcessor;
+import com.ray.chengdubuyhouse.network.processor.PreSellParseProcessor;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 
@@ -29,7 +31,7 @@ import io.reactivex.disposables.Disposable;
  * Time : 2018/7/27 上午12:22
  * Description :
  */
-public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, HtmlParser.DataCallback {
+public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, HtmlParser.HtmlDataCallback<List<PreSellHouseBean>> {
 
     private PreSellHouseAdapter mAdapter;
     private LoadingViewController mLoadingViewController;
@@ -55,11 +57,15 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mLoadingViewController.switchLoading();
-        HtmlParser.getInstance().parseHtml(null, this);
-        HtmlParser.getInstance().getBannerList(mBannerCallback);
+        requestData();
     }
 
-    private HtmlParser.BannerCallback mBannerCallback = new HtmlParser.BannerCallback() {
+    private void requestData() {
+        HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, new PreSellParseProcessor(), this);
+        HtmlParser.getInstance().parseHtml(NetworkConstant.HOME_BANNER, new BannerParseProcessor(), mBannerCallback);
+    }
+
+    private HtmlParser.HtmlDataCallback<List<BannerBean>> mBannerCallback = new HtmlParser.HtmlDataCallback<List<BannerBean>>() {
         @Override
         public void onSubscribe(Disposable d) {
             addDisposable(d);
@@ -78,8 +84,7 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
 
     @Override
     public void onRefresh() {
-        HtmlParser.getInstance().parseHtml(null, this);
-        HtmlParser.getInstance().getBannerList(mBannerCallback);
+      requestData();
     }
 
     @Override
