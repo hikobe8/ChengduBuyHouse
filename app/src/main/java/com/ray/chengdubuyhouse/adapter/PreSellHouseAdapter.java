@@ -1,6 +1,7 @@
 package com.ray.chengdubuyhouse.adapter;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.ray.chengdubuyhouse.PreSellDetailActivity;
 import com.ray.chengdubuyhouse.R;
+import com.ray.chengdubuyhouse.bean.BannerBean;
 import com.ray.chengdubuyhouse.bean.PreSellHouseBean;
 
 import java.util.ArrayList;
@@ -19,9 +21,11 @@ import java.util.List;
  * Time : 2018/7/27 上午12:28
  * Description :
  */
-public class PreSellHouseAdapter extends RecyclerView.Adapter<PreSellHouseAdapter.PreSellHolder> {
+public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<PreSellHouseBean> mPreSellHouseBeanList = new ArrayList<>();
+
+    private List<BannerBean> mBannerBeanList = new ArrayList<>();
 
     public void setData(List<PreSellHouseBean> data) {
         if (data != null) {
@@ -31,20 +35,63 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<PreSellHouseAdapte
         }
     }
 
+    public void setBannerData( List<BannerBean> bannerBeans) {
+        if (bannerBeans != null) {
+            mBannerBeanList.clear();
+            mBannerBeanList.addAll(bannerBeans);
+            notifyDataSetChanged();
+        }
+    }
+
     @NonNull
     @Override
-    public PreSellHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == 0) {
+            return new BannerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_banner_holder, parent, false));
+        }
         return new PreSellHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_presell_house, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PreSellHolder holder, int position) {
-        holder.bind(mPreSellHouseBeanList.get(position));
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof BannerHolder) {
+            ((BannerHolder)holder).bindBanner();
+        } else {
+            ((PreSellHolder)holder).bind(mPreSellHouseBeanList.get(getItemPosition(position)));
+        }
+    }
+
+    private int getItemPosition(int position) {
+        return mBannerBeanList.size() > 0 ? position - 1 : position ;
     }
 
     @Override
     public int getItemCount() {
-        return mPreSellHouseBeanList.size();
+        return mBannerBeanList.size() > 0 ? mPreSellHouseBeanList.size() + 1 : mPreSellHouseBeanList.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return mBannerBeanList.size() > 0 ? position == 0 ? 0 : 1 : 1;
+    }
+
+    class BannerHolder extends RecyclerView.ViewHolder {
+
+        RecyclerView mBannerRecycler;
+        BannerAdapter mBannerAdapter;
+
+        public BannerHolder(View itemView) {
+            super(itemView);
+            mBannerRecycler = itemView.findViewById(R.id.recycler_banner);
+            mBannerRecycler.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+            mBannerRecycler.addItemDecoration(new BannerItemDecoration(itemView.getContext()));
+            mBannerAdapter = new BannerAdapter();
+        }
+
+        public void bindBanner() {
+            mBannerAdapter.refreshData(mBannerBeanList);
+            mBannerRecycler.setAdapter(mBannerAdapter);
+        }
     }
 
     class PreSellHolder extends RecyclerView.ViewHolder {
@@ -78,5 +125,7 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<PreSellHouseAdapte
         }
 
     }
+
+
 
 }
