@@ -2,6 +2,7 @@ package com.ray.chengdubuyhouse.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.ray.chengdubuyhouse.BannerDetailActivity;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.bean.BannerBean;
 
@@ -52,13 +54,20 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerHold
         ImageView mIvBanner;
         private BannerBean mBannerBean;
 
-        BannerHolder(View itemView) {
+        BannerHolder(final View itemView) {
             super(itemView);
             mTvName = itemView.findViewById(R.id.tv_banner);
             mIvBanner = itemView.findViewById(R.id.iv_banner);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mBannerBean != null && !TextUtils.isEmpty(mBannerBean.getLink()))
+                        BannerDetailActivity.launch(itemView.getContext(), mBannerBean.getLink());
+                }
+            });
         }
 
-        public void bindData(BannerBean bannerBean) {
+        void bindData(BannerBean bannerBean) {
             if (mBannerBean == null || !mBannerBean.equals(bannerBean)) {
                 mTvName.setText(bannerBean.getName());
                 Glide.with(itemView).load(bannerBean.getImageUrl()).into(mIvBanner);

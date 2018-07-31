@@ -36,6 +36,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         setAsHomeUp();
     }
 
+    protected void setupToolBar(Toolbar toolbar) {
+        setSupportActionBar(toolbar);
+        setAsHomeUp();
+    }
+
     protected void setAsHomeUp() {
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
