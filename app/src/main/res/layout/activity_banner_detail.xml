@@ -23,6 +23,7 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_content"
+        android:layout_marginTop="@dimen/nav_header_vertical_spacing"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
