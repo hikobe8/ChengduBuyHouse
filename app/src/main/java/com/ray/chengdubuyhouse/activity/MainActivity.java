@@ -1,4 +1,4 @@
-package com.ray.chengdubuyhouse;
+package com.ray.chengdubuyhouse.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.fragment.PreSellHouseFragment;
 
 public class MainActivity extends AppCompatActivity

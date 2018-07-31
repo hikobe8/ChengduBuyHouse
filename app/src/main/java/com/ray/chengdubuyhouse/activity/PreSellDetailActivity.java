@@ -1,4 +1,4 @@
-package com.ray.chengdubuyhouse;
+package com.ray.chengdubuyhouse.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.ray.chengdubuyhouse.BaseActivity;
+import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.network.HtmlParser;
 import com.ray.chengdubuyhouse.network.processor.PreSellDetailParseProcessor;
 import com.ray.lib.loading.LoadingViewController;

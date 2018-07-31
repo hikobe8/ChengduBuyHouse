@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ray.chengdubuyhouse.PreSellDetailActivity;
+import com.ray.chengdubuyhouse.activity.PreSellDetailActivity;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.bean.BannerBean;
 import com.ray.chengdubuyhouse.bean.PreSellHouseBean;

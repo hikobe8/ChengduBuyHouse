@@ -1,4 +1,4 @@
-package com.ray.chengdubuyhouse;
+package com.ray.chengdubuyhouse.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.ray.chengdubuyhouse.BaseActivity;
+import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.BannerDetailContentAdapter;
 import com.ray.chengdubuyhouse.bean.BannerDetailBean;
 import com.ray.chengdubuyhouse.network.HtmlParser;
