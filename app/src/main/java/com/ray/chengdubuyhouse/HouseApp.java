@@ -3,6 +3,7 @@ package com.ray.chengdubuyhouse;
 import android.app.Application;
 
 import com.squareup.leakcanary.LeakCanary;
+import com.tencent.bugly.crashreport.CrashReport;
 
 /**
  * Author : hikobe8@github.com
@@ -20,5 +21,6 @@ public class HouseApp extends Application{
             return;
         }
         LeakCanary.install(this);
+        CrashReport.initCrashReport(getApplicationContext(), "cfd5a52743", BuildConfig.DEBUG);
     }
 }
