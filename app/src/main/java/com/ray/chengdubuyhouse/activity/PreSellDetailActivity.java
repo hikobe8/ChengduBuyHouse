@@ -21,6 +21,7 @@ import com.ray.lib.loading.LoadingViewManager;
 
 import java.util.List;
 
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
 public class PreSellDetailActivity extends BaseActivity {
@@ -44,7 +45,7 @@ public class PreSellDetailActivity extends BaseActivity {
         recyclerDetail.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         String url = getIntent().getStringExtra("url");
         mLoadingViewController.switchLoading();
-        HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor(), new HtmlParser.HtmlDataCallback<List<String>>() {
+        HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor()).subscribe(new Observer<List<String>>() {
             @Override
             public void onSubscribe(Disposable d) {
                 addDisposable(d);
@@ -63,6 +64,11 @@ public class PreSellDetailActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 mLoadingViewController.switchError();
+            }
+
+            @Override
+            public void onComplete() {
+
             }
         });
     }

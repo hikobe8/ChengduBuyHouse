@@ -13,14 +13,16 @@ import com.ray.chengdubuyhouse.bean.QueryResultBean;
 import com.ray.chengdubuyhouse.network.HtmlParser;
 import com.ray.chengdubuyhouse.network.NetworkConstant;
 import com.ray.chengdubuyhouse.network.processor.QueryParseProcessor;
+import com.ray.chengdubuyhouse.widget.NormalItemDivider;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 
 import java.util.List;
 
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-public class DistrictQueryActivity extends BaseActivity implements HtmlParser.HtmlDataCallback<List<QueryResultBean>> {
+public class DistrictQueryActivity extends BaseActivity implements Observer<List<QueryResultBean>> {
 
     private LoadingViewController mLoadingViewController;
 
@@ -42,7 +44,8 @@ public class DistrictQueryActivity extends BaseActivity implements HtmlParser.Ht
         mQueryAdapter = new QueryAdapter();
         recyclerResult.setAdapter(mQueryAdapter);
         mLoadingViewController.switchLoading();
-        HtmlParser.getInstance().parseHtmlByOkHttp(NetworkConstant.QUERY_LIST, new QueryParseProcessor(), this);
+        recyclerResult.addItemDecoration(new NormalItemDivider(this));
+        HtmlParser.getInstance().parseHtmlByOkHttp(NetworkConstant.QUERY_LIST, new QueryParseProcessor()).subscribe(this);
     }
 
     @Override
@@ -63,5 +66,10 @@ public class DistrictQueryActivity extends BaseActivity implements HtmlParser.Ht
     @Override
     public void onError(Throwable e) {
         mLoadingViewController.switchError();
+    }
+
+    @Override
+    public void onComplete() {
+
     }
 }

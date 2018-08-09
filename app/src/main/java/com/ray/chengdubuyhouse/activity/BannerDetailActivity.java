@@ -22,6 +22,7 @@ import com.ray.lib.loading.LoadingViewManager;
 
 import java.util.List;
 
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
 public class BannerDetailActivity extends BaseActivity {
@@ -45,7 +46,7 @@ public class BannerDetailActivity extends BaseActivity {
         recyclerContent.addItemDecoration(new BannerDetailDividerItemDecoration(this));
         setupToolBar(toolbar);
         loadingViewController.switchLoading();
-        HtmlParser.getInstance().parseHtml(getIntent().getStringExtra("url"), new BannerDetailParseProcessor(), new HtmlParser.HtmlDataCallback<List<BannerDetailBean>>() {
+        HtmlParser.getInstance().parseHtml(getIntent().getStringExtra("url"), new BannerDetailParseProcessor()).subscribe(new Observer<List<BannerDetailBean>>() {
             @Override
             public void onSubscribe(Disposable d) {
                 addDisposable(d);
@@ -65,6 +66,11 @@ public class BannerDetailActivity extends BaseActivity {
             @Override
             public void onError(Throwable e) {
                 loadingViewController.switchError();
+            }
+
+            @Override
+            public void onComplete() {
+
             }
         });
     }

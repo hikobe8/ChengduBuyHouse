@@ -8,15 +8,7 @@
     tools:context=".activity.DistrictQueryActivity"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        app:title="@string/title_query"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        android:layout_marginBottom="@dimen/nav_header_vertical_spacing"
-        app:popupTheme="@style/AppTheme.PopupOverlay"/>
+    <include layout="@layout/common_toolbar"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_result"
