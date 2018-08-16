@@ -17,7 +17,9 @@ import com.ray.chengdubuyhouse.widget.NormalItemDivider;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -45,7 +47,10 @@ public class DistrictQueryActivity extends BaseActivity implements Observer<List
         recyclerResult.setAdapter(mQueryAdapter);
         mLoadingViewController.switchLoading();
         recyclerResult.addItemDecoration(new NormalItemDivider(this));
-        HtmlParser.getInstance().parseHtmlByOkHttp(NetworkConstant.QUERY_LIST, new QueryParseProcessor()).subscribe(this);
+        Map<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("regioncode", "00");
+        paramsMap.put("pageNo", "1");
+        HtmlParser.getInstance().parseHtmlByOkHttp(NetworkConstant.QUERY_LIST, paramsMap, new QueryParseProcessor()).subscribe(this);
     }
 
     @Override

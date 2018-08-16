@@ -65,7 +65,7 @@ public class HtmlParser {
         return client.newCall(request);
     }
 
-    public <T> Observable<T> parseHtmlByOkHttp(final String url, final IHtmlParseProcessor<T> htmlParseProcess) {
+    public <T> Observable<T> parseHtmlByOkHttp(final String url, final Map<String, String> paramsMap, final IHtmlParseProcessor<T> htmlParseProcess) {
         return Observable
                 .create(new ObservableOnSubscribe<Document>() {
                     @Override
@@ -73,9 +73,6 @@ public class HtmlParser {
                         Call call = null;
                         while (!emitter.isDisposed()) {
                             if (call == null) {
-                                Map<String, String> paramsMap = new HashMap<>();
-                                paramsMap.put("regioncode", "00");
-                                paramsMap.put("pageNo", "1");
                                 call = post(url, paramsMap);
                                 try {
                                     Document doc = Jsoup.parse(call.execute().body().string());
