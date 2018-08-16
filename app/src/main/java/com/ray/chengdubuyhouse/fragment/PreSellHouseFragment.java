@@ -37,6 +37,7 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
 
     private PreSellHouseAdapter mAdapter;
     private LoadingViewController mLoadingViewController;
+    private LinearLayoutManager mLinearLayoutManager;
 
     @Nullable
     @Override
@@ -50,7 +51,8 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
         mLoadingViewController = LoadingViewManager.register(view);
         ((SwipeRefreshLayout)view).setOnRefreshListener(this);
         RecyclerView recyclerPreSell = view.findViewById(R.id.recycler_pre_sell);
-        recyclerPreSell.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mLinearLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerPreSell.setLayoutManager(mLinearLayoutManager);
         mAdapter = new PreSellHouseAdapter();
         recyclerPreSell.setAdapter(mAdapter);
         recyclerPreSell.addItemDecoration(new NormalItemDivider(getActivity()));
@@ -77,6 +79,9 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
         @Override
         public void onNext(List<BannerBean> datas) {
             mAdapter.setBannerData(datas);
+            if (mLinearLayoutManager.findFirstVisibleItemPosition() <= 1) {
+                mLinearLayoutManager.scrollToPosition(0);
+            }
         }
 
         @Override

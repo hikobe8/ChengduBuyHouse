@@ -39,7 +39,7 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (bannerBeans != null) {
             mBannerBeanList.clear();
             mBannerBeanList.addAll(bannerBeans);
-            notifyDataSetChanged();
+            notifyItemInserted(0);
         }
     }
 
@@ -55,7 +55,7 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof BannerHolder) {
-            ((BannerHolder)holder).bindBanner();
+            ((BannerHolder)holder).bindBanner(mBannerBeanList);
         } else {
             ((PreSellHolder)holder).bind(mPreSellHouseBeanList.get(getItemPosition(position)));
         }
@@ -75,10 +75,12 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return mBannerBeanList.size() > 0 ? position == 0 ? 0 : 1 : 1;
     }
 
-    class BannerHolder extends RecyclerView.ViewHolder {
+    static class BannerHolder extends RecyclerView.ViewHolder {
 
         RecyclerView mBannerRecycler;
         BannerAdapter mBannerAdapter;
+        List<BannerBean> mBannerBeanList = new ArrayList<>();
+
 
         public BannerHolder(View itemView) {
             super(itemView);
@@ -88,13 +90,17 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mBannerAdapter = new BannerAdapter();
         }
 
-        public void bindBanner() {
-            mBannerAdapter.refreshData(mBannerBeanList);
-            mBannerRecycler.setAdapter(mBannerAdapter);
+        public void bindBanner(List<BannerBean> bannerBeanList) {
+            if (!mBannerBeanList.equals(bannerBeanList)) {
+                mBannerBeanList.clear();
+                mBannerBeanList.addAll(bannerBeanList);
+                mBannerAdapter.refreshData(mBannerBeanList);
+                mBannerRecycler.setAdapter(mBannerAdapter);
+            }
         }
     }
 
-    class PreSellHolder extends RecyclerView.ViewHolder {
+    static class PreSellHolder extends RecyclerView.ViewHolder {
 
         TextView tvAddress;
         TextView tvName;

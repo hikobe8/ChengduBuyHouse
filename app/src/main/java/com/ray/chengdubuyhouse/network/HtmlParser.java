@@ -110,9 +110,13 @@ public class HtmlParser {
                         Document doc = null;
                         while (!emitter.isDisposed()) {
                             if (doc == null) {
-                                doc = Jsoup.connect(url).get();
-                                emitter.onNext(doc);
-                                emitter.onComplete();
+                                try {
+                                    doc = Jsoup.connect(url).get();
+                                    emitter.onNext(doc);
+                                    emitter.onComplete();
+                                } catch (InterruptedIOException e) {
+                                    return;
+                                }
                             }
                         }
                     }
