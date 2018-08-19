@@ -22,6 +22,16 @@ public class DistrictAdapter extends RecyclerView.Adapter<DistrictAdapter.Distri
 
     private List<DistrictEntity> mDistrictEntityList = new ArrayList<>();
 
+    public interface OnItemClickListener {
+        void onItemClick(DistrictEntity districtEntity);
+    }
+
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
+    }
+
     public void setData(List<DistrictEntity> districtEntityList) {
         mDistrictEntityList.clear();
         mDistrictEntityList.addAll(districtEntityList);
@@ -35,8 +45,16 @@ public class DistrictAdapter extends RecyclerView.Adapter<DistrictAdapter.Distri
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DistrictHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final DistrictHolder holder, final int position) {
         holder.bindData(mDistrictEntityList.get(position));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(holder.mDistrictEntity);
+                }
+            }
+        });
     }
 
     @Override

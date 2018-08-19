@@ -60,6 +60,7 @@ public class HtmlParser {
         RequestBody formBody = builder.build();
         Request request = new Request.Builder()
                 .url(url)
+                .get()
                 .post(formBody)
                 .build();
         return client.newCall(request);
@@ -89,7 +90,7 @@ public class HtmlParser {
                     }
                 })
                 .onTerminateDetach()
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(new Function<Document, T>() {
                     @Override
@@ -119,7 +120,7 @@ public class HtmlParser {
                     }
                 })
                 .onTerminateDetach()
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(new Function<Document, T>() {
                     @Override

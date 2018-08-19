@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import com.ray.chengdubuyhouse.db.entity.DistrictEntity;
 
@@ -18,10 +19,16 @@ import java.util.List;
 public interface DistrictDao {
 
     @Insert
-    public void insertDistrict(DistrictEntity entity);
+    void insertDistrict(DistrictEntity entity);
 
     @Query("DELETE FROM district")
     void deleteAll();
+
+    @Query("SELECT * from district WHERE code = :code")
+    DistrictEntity searchDistrict(String code);
+
+    @Update
+    void updateDistrict(DistrictEntity entity);
 
     @Query("SELECT * FROM district ORDER BY code ASC")
     LiveData<List<DistrictEntity>> getAllDistricts();

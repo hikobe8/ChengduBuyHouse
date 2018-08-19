@@ -1,6 +1,8 @@
 package com.ray.chengdubuyhouse.network.processor;
 
 import com.ray.chengdubuyhouse.bean.QueryResultBean;
+import com.ray.chengdubuyhouse.db.entity.DistrictEntity;
+import com.ray.chengdubuyhouse.viewmodel.DistrictViewModel;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,6 +17,12 @@ import java.util.List;
  * Description :
  */
 public class QueryParseProcessor implements IHtmlParseProcessor<List<QueryResultBean>> {
+
+    private DistrictViewModel mDistrictViewModel;
+
+    public QueryParseProcessor(DistrictViewModel districtViewModel) {
+        mDistrictViewModel = districtViewModel;
+    }
 
     @Override
     public List<QueryResultBean> processParse(Document doc) {
@@ -35,6 +43,15 @@ public class QueryParseProcessor implements IHtmlParseProcessor<List<QueryResult
             queryResultBean.setStatus(trElement.child(10).text());
             resultBeanList.add(queryResultBean);
         }
+        Elements options = doc.select("select.sml").first().children();
+        List<DistrictEntity> districtEntityList = new ArrayList<>();
+        for (Element option : options) {
+            String code = option.attr("value");
+            String name = option.text();
+            DistrictEntity entity = new DistrictEntity(code, name);
+            districtEntityList.add(entity);
+        }
+        mDistrictViewModel.insertDistricts(districtEntityList);
         return resultBeanList;
     }
 
