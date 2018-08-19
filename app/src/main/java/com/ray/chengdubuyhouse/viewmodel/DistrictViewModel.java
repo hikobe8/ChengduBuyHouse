@@ -20,7 +20,7 @@ public class DistrictViewModel extends AndroidViewModel {
     private DistrictRepository mDistrictRepository;
     private LiveData<List<DistrictEntity>> mListLiveData;
     //只会在第一次启动的时候更新地区数据表
-    private static boolean sDataUpdated;
+    public static boolean sDataUpdated;
 
     public DistrictViewModel(@NonNull Application application) {
         super(application);

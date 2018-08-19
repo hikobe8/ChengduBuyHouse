@@ -13,6 +13,6 @@ public interface NetworkConstant {
 
     String PRE_SELL_URL = HOST + "/Infor/type/typeid/36.html";
 
-    String QUERY_LIST = "http://gfdj.cdfgj.gov.cn/lottery/accept/projectList";
+    String QUERY_LIST = "https://gfdj.cdfgj.gov.cn/lottery/accept/projectList";
 
 }

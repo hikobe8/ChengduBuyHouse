@@ -22,6 +22,14 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.QueryHolder>
 
     private List<QueryResultBean> mResultBeanList = new ArrayList<>();
 
+    public void refreshData(List<QueryResultBean> dataList) {
+        if (dataList != null) {
+            mResultBeanList.clear();
+            mResultBeanList.addAll(dataList);
+            notifyDataSetChanged();
+        }
+    }
+
     public void addData(List<QueryResultBean> dataList) {
         if (dataList != null) {
             mResultBeanList.addAll(dataList);

@@ -28,7 +28,6 @@ import com.ray.lib.loading.LoadingViewManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -103,13 +102,14 @@ public class DistrictQueryActivity extends BaseActivity implements Observer<List
 
     @Override
     public void onSubscribe(Disposable d) {
+        mRequestDisposable = d;
         addDisposable(d);
     }
 
     @Override
     public void onNext(List<QueryResultBean> data) {
         if (data != null && data.size() > 0) {
-            mQueryAdapter.addData(data);
+            mQueryAdapter.refreshData(data);
             mLoadingViewController.switchSuccess();
         } else {
             mLoadingViewController.switchEmpty();

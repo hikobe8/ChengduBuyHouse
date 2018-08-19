@@ -43,15 +43,17 @@ public class QueryParseProcessor implements IHtmlParseProcessor<List<QueryResult
             queryResultBean.setStatus(trElement.child(10).text());
             resultBeanList.add(queryResultBean);
         }
-        Elements options = doc.select("select.sml").first().children();
-        List<DistrictEntity> districtEntityList = new ArrayList<>();
-        for (Element option : options) {
-            String code = option.attr("value");
-            String name = option.text();
-            DistrictEntity entity = new DistrictEntity(code, name);
-            districtEntityList.add(entity);
+        if (!DistrictViewModel.sDataUpdated) {
+            Elements options = doc.select("select.sml").first().children();
+            List<DistrictEntity> districtEntityList = new ArrayList<>();
+            for (Element option : options) {
+                String code = option.attr("value");
+                String name = option.text();
+                DistrictEntity entity = new DistrictEntity(code, name);
+                districtEntityList.add(entity);
+            }
+            mDistrictViewModel.insertDistricts(districtEntityList);
         }
-        mDistrictViewModel.insertDistricts(districtEntityList);
         return resultBeanList;
     }
 
