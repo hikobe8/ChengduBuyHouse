@@ -25,6 +25,7 @@ import com.ray.chengdubuyhouse.widget.NormalItemDivider;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ import java.util.Map;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-public class DistrictQueryActivity extends BaseActivity implements Observer<List<QueryResultBean>> {
+public class DistrictQueryActivity extends BaseActivity{
 
     private LoadingViewController mLoadingViewController;
     private QueryAdapter mQueryAdapter;
@@ -40,6 +41,7 @@ public class DistrictQueryActivity extends BaseActivity implements Observer<List
     private DistrictViewModel mDistrictViewModel;
     private DrawerLayout mDrawerLayout;
     private Disposable mRequestDisposable;
+    private QueryObserver mQueryObserver;
 
     public static void launch(Context context) {
         Intent startIntent = new Intent(context, DistrictQueryActivity.class);
@@ -79,11 +81,60 @@ public class DistrictQueryActivity extends BaseActivity implements Observer<List
         paramsMap.put("regioncode", code);
         paramsMap.put("pageNo", "1");
         mLoadingViewController.switchLoading();
+        if (mQueryObserver == null) {
+            mQueryObserver = new QueryObserver(this);
+        }
         HtmlParser.getInstance()
                 .parseHtmlByOkHttp(
                         NetworkConstant.QUERY_LIST,
                         paramsMap,
-                        new QueryParseProcessor(mDistrictViewModel)).subscribe(this);
+                        new QueryParseProcessor(mDistrictViewModel)).subscribe(mQueryObserver);
+    }
+
+    private static class QueryObserver implements Observer<List<QueryResultBean>>{
+
+        private WeakReference<DistrictQueryActivity> mDistrictQueryActivityWeakReference;
+
+        public QueryObserver(DistrictQueryActivity districtQueryActivity) {
+            mDistrictQueryActivityWeakReference = new WeakReference<>(districtQueryActivity);
+        }
+
+        @Override
+        public void onSubscribe(Disposable d) {
+            DistrictQueryActivity districtQueryActivity = mDistrictQueryActivityWeakReference.get();
+            if (districtQueryActivity != null) {
+                districtQueryActivity.mRequestDisposable = d;
+                districtQueryActivity.addDisposable(d);
+            }
+
+        }
+
+        @Override
+        public void onNext(List<QueryResultBean> data) {
+            DistrictQueryActivity districtQueryActivity = mDistrictQueryActivityWeakReference.get();
+            if (districtQueryActivity != null) {
+                if (data != null && data.size() > 0) {
+                    districtQueryActivity.mQueryAdapter.refreshData(data);
+                    districtQueryActivity.mLoadingViewController.switchSuccess();
+                } else {
+                    districtQueryActivity.mLoadingViewController.switchEmpty();
+                }
+            }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            DistrictQueryActivity districtQueryActivity = mDistrictQueryActivityWeakReference.get();
+            if (districtQueryActivity != null) {
+                districtQueryActivity.mLoadingViewController.switchError();
+                districtQueryActivity.mRequestDisposable.dispose();
+            }
+        }
+
+        @Override
+        public void onComplete() {
+
+        }
     }
 
     private void initRegionRv(RecyclerView rvDistrict) {
@@ -98,31 +149,5 @@ public class DistrictQueryActivity extends BaseActivity implements Observer<List
             }
         });
         rvDistrict.setAdapter(mDistrictAdapter);
-    }
-
-    @Override
-    public void onSubscribe(Disposable d) {
-        mRequestDisposable = d;
-        addDisposable(d);
-    }
-
-    @Override
-    public void onNext(List<QueryResultBean> data) {
-        if (data != null && data.size() > 0) {
-            mQueryAdapter.refreshData(data);
-            mLoadingViewController.switchSuccess();
-        } else {
-            mLoadingViewController.switchEmpty();
-        }
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        mLoadingViewController.switchError();
-    }
-
-    @Override
-    public void onComplete() {
-
     }
 }
