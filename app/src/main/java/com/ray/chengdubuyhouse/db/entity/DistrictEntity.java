@@ -83,7 +83,7 @@ public class DistrictEntity implements Parcelable {
 
     @Override
     public String toString() {
-        return "DistrictEntity{" +
+        return "{" +
                 "mRegionCode=" + mRegionCode +
                 ", name='" + name + '\'' +
                 '}';

@@ -39,4 +39,8 @@ public class DistrictViewModel extends AndroidViewModel {
         return mListLiveData;
     }
 
+    public DistrictEntity getCachedDistrictEntity(){
+        return mDistrictRepository.getCachedDistrictEntity();
+    }
+
 }

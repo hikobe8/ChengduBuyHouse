@@ -9,7 +9,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.ray.chengdubuyhouse.BaseActivity;
 import com.ray.chengdubuyhouse.R;
@@ -20,6 +23,7 @@ import com.ray.chengdubuyhouse.db.entity.DistrictEntity;
 import com.ray.chengdubuyhouse.network.HtmlParser;
 import com.ray.chengdubuyhouse.network.NetworkConstant;
 import com.ray.chengdubuyhouse.network.processor.QueryParseProcessor;
+import com.ray.chengdubuyhouse.util.SPUtil;
 import com.ray.chengdubuyhouse.viewmodel.DistrictViewModel;
 import com.ray.chengdubuyhouse.widget.NormalItemDivider;
 import com.ray.lib.loading.LoadingViewController;
@@ -42,6 +46,7 @@ public class DistrictQueryActivity extends BaseActivity{
     private DrawerLayout mDrawerLayout;
     private Disposable mRequestDisposable;
     private QueryObserver mQueryObserver;
+    private Toolbar mToolbar;
 
     public static void launch(Context context) {
         Intent startIntent = new Intent(context, DistrictQueryActivity.class);
@@ -53,10 +58,10 @@ public class DistrictQueryActivity extends BaseActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_district_query);
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        setupToolBar(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
+        setupToolBar(mToolbar);
         RecyclerView recyclerResult = findViewById(R.id.recycler_result);
         RecyclerView rvDistrict = findViewById(R.id.rv_district);
-        initRegionRv(rvDistrict);
         mLoadingViewController = LoadingViewManager.register(recyclerResult);
         recyclerResult.setLayoutManager(new LinearLayoutManager(this));
         mQueryAdapter = new QueryAdapter();
@@ -69,7 +74,31 @@ public class DistrictQueryActivity extends BaseActivity{
                 mDistrictAdapter.setData(districtEntities);
             }
         });
-        requestData("00");
+        String cachedCode = "00";
+        DistrictEntity cachedDistrict = mDistrictViewModel.getCachedDistrictEntity();
+        if (cachedDistrict != null) {
+            mToolbar.setTitle(cachedDistrict.getName());
+            cachedCode = cachedDistrict.getRegionCode();
+        } else {
+            mToolbar.setTitle("全部地区");
+        }
+        requestData(cachedCode);
+        initRegionRv(rvDistrict, cachedCode);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_district_search, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_search) {
+            mDrawerLayout.openDrawer(Gravity.END);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void requestData(String code) {
@@ -137,15 +166,18 @@ public class DistrictQueryActivity extends BaseActivity{
         }
     }
 
-    private void initRegionRv(RecyclerView rvDistrict) {
+    private void initRegionRv(RecyclerView rvDistrict, String cachedCode) {
         rvDistrict.setLayoutManager(new LinearLayoutManager(this));
         rvDistrict.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        mDistrictAdapter = new DistrictAdapter();
+        mDistrictAdapter = new DistrictAdapter(this, cachedCode);
         mDistrictAdapter.setOnItemClickListener(new DistrictAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DistrictEntity districtEntity) {
-                requestData(districtEntity.getRegionCode());
+                String regionCode = districtEntity.getRegionCode();
+                requestData(regionCode);
+                SPUtil.getInstance(mActivity).putString(SPUtil.KEY.KEY_SELECTED_DISTRICT, districtEntity.toString());
                 mDrawerLayout.closeDrawer(Gravity.END);
+                mToolbar.setTitle(districtEntity.getName());
             }
         });
         rvDistrict.setAdapter(mDistrictAdapter);

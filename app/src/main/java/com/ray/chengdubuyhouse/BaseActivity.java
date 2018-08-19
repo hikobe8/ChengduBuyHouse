@@ -19,11 +19,13 @@ import io.reactivex.disposables.Disposable;
 public abstract class BaseActivity extends AppCompatActivity {
 
     private RxDisposableManager mRxDisposableManager;
+    protected BaseActivity mActivity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRxDisposableManager = new RxDisposableManager();
+        mActivity = this;
     }
 
     protected void addDisposable(Disposable disposable) {

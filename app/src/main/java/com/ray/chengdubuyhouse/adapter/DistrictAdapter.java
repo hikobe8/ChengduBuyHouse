@@ -1,5 +1,6 @@
 package com.ray.chengdubuyhouse.adapter;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,6 +10,8 @@ import android.widget.TextView;
 
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.db.entity.DistrictEntity;
+import com.ray.chengdubuyhouse.util.SPUtil;
+import com.ray.chengdubuyhouse.viewmodel.DistrictViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +23,15 @@ import java.util.List;
  */
 public class DistrictAdapter extends RecyclerView.Adapter<DistrictAdapter.DistrictHolder> {
 
-    private List<DistrictEntity> mDistrictEntityList = new ArrayList<>();
+    private List<DistrictEntity> mDistrictEntityList;
+    private LayoutInflater mLayoutInflater;
+    private String mSelectedRegionCode;
+
+    public DistrictAdapter(Context context, String selectedRegionCode) {
+        mSelectedRegionCode = selectedRegionCode;
+        mDistrictEntityList = new ArrayList<>();
+        mLayoutInflater = LayoutInflater.from(context);
+    }
 
     public interface OnItemClickListener {
         void onItemClick(DistrictEntity districtEntity);
@@ -41,7 +52,7 @@ public class DistrictAdapter extends RecyclerView.Adapter<DistrictAdapter.Distri
     @NonNull
     @Override
     public DistrictHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new DistrictHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_district, parent, false));
+        return new DistrictHolder(mLayoutInflater.inflate(R.layout.item_district, parent, false));
     }
 
     @Override
@@ -52,9 +63,15 @@ public class DistrictAdapter extends RecyclerView.Adapter<DistrictAdapter.Distri
             public void onClick(View v) {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(holder.mDistrictEntity);
+                    mSelectedRegionCode = holder.mDistrictEntity.getRegionCode();
                 }
             }
         });
+        if (mSelectedRegionCode.equals(holder.mDistrictEntity.getRegionCode())) {
+            holder.itemView.setBackgroundResource(R.color.colorAccent);
+        } else {
+            holder.itemView.setBackgroundResource(android.R.color.transparent);
+        }
     }
 
     @Override
