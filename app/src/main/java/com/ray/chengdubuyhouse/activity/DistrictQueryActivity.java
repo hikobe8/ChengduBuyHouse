@@ -47,6 +47,7 @@ public class DistrictQueryActivity extends BaseActivity{
     private Disposable mRequestDisposable;
     private QueryObserver mQueryObserver;
     private Toolbar mToolbar;
+    private RecyclerView mRecyclerResult;
 
     public static void launch(Context context) {
         Intent startIntent = new Intent(context, DistrictQueryActivity.class);
@@ -60,13 +61,13 @@ public class DistrictQueryActivity extends BaseActivity{
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mToolbar = findViewById(R.id.toolbar);
         setupToolBar(mToolbar);
-        RecyclerView recyclerResult = findViewById(R.id.recycler_result);
+        mRecyclerResult = findViewById(R.id.recycler_result);
         RecyclerView rvDistrict = findViewById(R.id.rv_district);
-        mLoadingViewController = LoadingViewManager.register(recyclerResult);
-        recyclerResult.setLayoutManager(new LinearLayoutManager(this));
+        mLoadingViewController = LoadingViewManager.register(mRecyclerResult);
+        mRecyclerResult.setLayoutManager(new LinearLayoutManager(this));
         mQueryAdapter = new QueryAdapter();
-        recyclerResult.setAdapter(mQueryAdapter);
-        recyclerResult.addItemDecoration(new NormalItemDivider(this));
+        mRecyclerResult.setAdapter(mQueryAdapter);
+        mRecyclerResult.addItemDecoration(new NormalItemDivider(this));
         mDistrictViewModel = ViewModelProviders.of(this).get(DistrictViewModel.class);
         mDistrictViewModel.getListLiveData().observe(this, new android.arch.lifecycle.Observer<List<DistrictEntity>>() {
             @Override
@@ -80,7 +81,7 @@ public class DistrictQueryActivity extends BaseActivity{
             mToolbar.setTitle(cachedDistrict.getName());
             cachedCode = cachedDistrict.getRegionCode();
         } else {
-            mToolbar.setTitle("全部地区");
+            mToolbar.setTitle("所有区域");
         }
         requestData(cachedCode);
         initRegionRv(rvDistrict, cachedCode);
@@ -144,6 +145,7 @@ public class DistrictQueryActivity extends BaseActivity{
             if (districtQueryActivity != null) {
                 if (data != null && data.size() > 0) {
                     districtQueryActivity.mQueryAdapter.refreshData(data);
+                    districtQueryActivity.mRecyclerResult.scrollToPosition(0);
                     districtQueryActivity.mLoadingViewController.switchSuccess();
                 } else {
                     districtQueryActivity.mLoadingViewController.switchEmpty();

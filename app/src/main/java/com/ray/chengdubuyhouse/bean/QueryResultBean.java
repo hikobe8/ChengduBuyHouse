@@ -19,7 +19,7 @@ public class QueryResultBean implements Parcelable {
     private String phone;
     private String startTime;
     private String endTime;
-    private String selectEndTime;
+    private String selectEndTime = "暂无";
     private String status;
     private boolean canSelect;
 
@@ -141,7 +141,8 @@ public class QueryResultBean implements Parcelable {
     }
 
     public void setSelectEndTime(String selectEndTime) {
-        this.selectEndTime = selectEndTime;
+        if (!TextUtils.isEmpty(selectEndTime))
+            this.selectEndTime = selectEndTime;
     }
 
     public String getStatus() {

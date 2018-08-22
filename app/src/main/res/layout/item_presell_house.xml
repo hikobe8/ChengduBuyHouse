@@ -24,7 +24,7 @@
             <TextView
                 android:id="@+id/tv_address"
                 android:text="sdf"
-                android:textSize="24sp"
+                android:textSize="@dimen/text_size_big"
                 android:textColor="@color/colorPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -32,6 +32,7 @@
             <TextView
                 android:id="@+id/tv_name"
                 android:text="adf"
+                android:textSize="@dimen/text_size_medium"
                 android:layout_marginTop="@dimen/nav_header_vertical_spacing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>

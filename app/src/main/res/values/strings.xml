@@ -8,4 +8,10 @@
     <string name="action_settings">Settings</string>
     <string name="pre_sell_detail_title">预售信息</string>
     <string name="title_query">查询房源</string>
+    <string name="text_query_no">预售证号 : %s</string>
+    <string name="text_query_range">预售范围 : %s</string>
+    <string name="text_query_count">住房套数 : %s</string>
+    <string name="text_query_phone">开发商咨询电话 : %s</string>
+    <string name="text_query_start_end_time">登记起始时间 : %s - %s</string>
+    <string name="text_query_select_time">选房结束时间 : %s</string>
 </resources>

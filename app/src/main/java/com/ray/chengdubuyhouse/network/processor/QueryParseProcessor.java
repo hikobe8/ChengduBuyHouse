@@ -40,7 +40,7 @@ public class QueryParseProcessor implements IHtmlParseProcessor<List<QueryResult
             queryResultBean.setStartTime(trElement.child(8).text());
             queryResultBean.setEndTime(trElement.child(8).text());
             queryResultBean.setSelectEndTime(trElement.select("td.terminalTime").first().text());
-            queryResultBean.setStatus(trElement.child(10).text());
+            queryResultBean.setStatus(trElement.child(11).text());
             resultBeanList.add(queryResultBean);
         }
         if (!DistrictViewModel.sDataUpdated) {
