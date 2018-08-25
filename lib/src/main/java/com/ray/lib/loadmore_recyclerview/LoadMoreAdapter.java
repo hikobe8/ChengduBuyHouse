@@ -15,8 +15,8 @@ import com.ray.lib.R;
  */
 public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int TYPE_NORMAL = 0;
-    private static final int TYPE_FOOTER = 1;
+    private static final int TYPE_FOOTER = 0;
+    private static final int TYPE_NORMAL = 1;
 
     private LoadingHolder mLoadingHolder;
 
@@ -30,7 +30,7 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
         mCanLoadMore = canLoadMore;
     }
 
-    public interface OnLoadInErrorStateListener{
+    public interface OnLoadInErrorStateListener {
         void onLoadInErrorState();
     }
 
@@ -48,18 +48,18 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_NORMAL) {
-            return onCreateNormalViewHolder(parent);
+    public final RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == TYPE_FOOTER) {
+            mLoadingHolder = new LoadingHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.load_more_loading_item, parent, false));
+            return mLoadingHolder;
         }
-        mLoadingHolder = new LoadingHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.load_more_loading_item, parent, false));
-        return mLoadingHolder;
+        return onCreateNormalViewHolder(parent, viewType);
     }
 
-    protected abstract RecyclerView.ViewHolder onCreateNormalViewHolder(@NonNull ViewGroup parent);
+    protected abstract RecyclerView.ViewHolder onCreateNormalViewHolder(@NonNull ViewGroup parent, int viewType);
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public final void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (position < getNormalItemCount()) {
             onBindNormalViewHolder(holder, position);
         } else {
@@ -73,18 +73,22 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
     protected abstract void onBindNormalViewHolder(RecyclerView.ViewHolder holder, int position);
 
     @Override
-    public int getItemCount() {
+    public final int getItemCount() {
         return getNormalItemCount() == 0 ? 0 : getNormalItemCount() + 1;
     }
 
-    protected abstract int getNormalItemCount();
+    public abstract int getNormalItemCount();
 
     @Override
-    public int getItemViewType(int position) {
+    public final int getItemViewType(int position) {
         int normalItemCount = getNormalItemCount();
         if (position == normalItemCount) {
             return TYPE_FOOTER;
         }
+        return getNormalItemViewType(position);
+    }
+
+    protected int getNormalItemViewType(int position) {
         return TYPE_NORMAL;
     }
 

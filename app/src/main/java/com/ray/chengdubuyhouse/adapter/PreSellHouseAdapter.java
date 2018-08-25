@@ -12,6 +12,7 @@ import com.ray.chengdubuyhouse.activity.PreSellDetailActivity;
 import com.ray.chengdubuyhouse.R;
 import com.ray.lib.bean.BannerBean;
 import com.ray.lib.bean.PreSellHouseBean;
+import com.ray.lib.loadmore_recyclerview.LoadMoreAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +22,25 @@ import java.util.List;
  * Time : 2018/7/27 上午12:28
  * Description :
  */
-public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PreSellHouseAdapter extends LoadMoreAdapter {
 
     private List<PreSellHouseBean> mPreSellHouseBeanList = new ArrayList<>();
 
     private List<BannerBean> mBannerBeanList = new ArrayList<>();
 
-    public void setData(List<PreSellHouseBean> data) {
+    public void refreshData(List<PreSellHouseBean> data) {
         if (data != null) {
             mPreSellHouseBeanList.clear();
             mPreSellHouseBeanList.addAll(data);
             notifyDataSetChanged();
+        }
+    }
+
+    public void addData(List<PreSellHouseBean> data) {
+        if (data != null) {
+            int normalItemCount = getNormalItemCount();
+            mPreSellHouseBeanList.addAll(data);
+            notifyItemRangeInserted(normalItemCount, data.size());
         }
     }
 
@@ -43,17 +52,17 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == 0) {
+    protected RecyclerView.ViewHolder onCreateNormalViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == 1) {
+
             return new BannerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_banner_holder, parent, false));
         }
         return new PreSellHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_presell_house, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    protected void onBindNormalViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof BannerHolder) {
             ((BannerHolder)holder).bindBanner(mBannerBeanList);
         } else {
@@ -66,13 +75,13 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     @Override
-    public int getItemCount() {
+    public int getNormalItemCount() {
         return mBannerBeanList.size() > 0 ? mPreSellHouseBeanList.size() + 1 : mPreSellHouseBeanList.size();
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return mBannerBeanList.size() > 0 ? position == 0 ? 0 : 1 : 1;
+    protected int getNormalItemViewType(int position) {
+        return mBannerBeanList.size() > 0 ? position == 0 ? 1 : 2 : 2;
     }
 
     static class BannerHolder extends RecyclerView.ViewHolder {
@@ -82,7 +91,7 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         List<BannerBean> mBannerBeanList = new ArrayList<>();
 
 
-        public BannerHolder(View itemView) {
+        BannerHolder(View itemView) {
             super(itemView);
             mBannerRecycler = itemView.findViewById(R.id.recycler_banner);
             mBannerRecycler.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -90,7 +99,7 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mBannerAdapter = new BannerAdapter();
         }
 
-        public void bindBanner(List<BannerBean> bannerBeanList) {
+        void bindBanner(List<BannerBean> bannerBeanList) {
             if (!mBannerBeanList.equals(bannerBeanList)) {
                 mBannerBeanList.clear();
                 mBannerBeanList.addAll(bannerBeanList);
@@ -121,7 +130,7 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             });
         }
 
-        public void bind(PreSellHouseBean houseBean) {
+        void bind(PreSellHouseBean houseBean) {
             if (houseBean != null && !houseBean.equals(mSellHouseBean)) {
                 tvAddress.setText(houseBean.getAddress());
                 tvName.setText(houseBean.getName());
@@ -131,7 +140,5 @@ public class PreSellHouseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
     }
-
-
 
 }

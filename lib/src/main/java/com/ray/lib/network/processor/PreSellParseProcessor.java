@@ -1,7 +1,9 @@
 package com.ray.lib.network.processor;
 
+import com.ray.lib.bean.PageableResponseBean;
 import com.ray.lib.bean.PreSellHouseBean;
 import com.ray.lib.network.NetworkConstant;
+import com.ray.lib.util.PageDataUtil;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,16 +11,22 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Author : hikobe8@github.com
  * Time : 2018/7/31 上午12:31
  * Description :
  */
-public class PreSellParseProcessor implements IHtmlParseProcessor<List<PreSellHouseBean>> {
+public class PreSellParseProcessor implements IHtmlParseProcessor<PageableResponseBean<List<PreSellHouseBean>>> {
 
     @Override
-    public List<PreSellHouseBean> processParse(Document doc) {
+    public PageableResponseBean<List<PreSellHouseBean>> processParse(Document doc) {
+        PageableResponseBean<List<PreSellHouseBean>> pageableResponseBean = new PageableResponseBean<>();
+        Element pageElement = doc.select("div.pages2 > b").first();
+        String pageText = pageElement.text();
+        PageDataUtil.fillPageableData(pageText, pageableResponseBean);
         Elements select = doc.select("div.main > div.right_cont > ul.ul_list > li");
         List<PreSellHouseBean> datas = new ArrayList<>();
         for (Element next : select) {
@@ -38,7 +46,8 @@ public class PreSellParseProcessor implements IHtmlParseProcessor<List<PreSellHo
                 datas.add(preSellHouseBean);
             }
         }
-        return datas;
+        pageableResponseBean.data = datas;
+        return pageableResponseBean;
     }
 
 }

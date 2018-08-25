@@ -5,6 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
+
+import com.ray.lib.BuildConfig;
 
 /**
  * Author : hikobe8@github.com
@@ -45,9 +48,11 @@ public class LoadMoreRecyclerView extends RecyclerView{
                 LoadMoreAdapter adapter = (LoadMoreAdapter) getAdapter();
                 int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
                 if (lastVisibleItemPosition == adapter.getNormalItemCount() && adapter.isCanLoadMore()) {
-                    if (adapter.isCanLoadMore())
-                        adapter.setFooterState(LoadingMoreType.TYPE_LOADING);
+                    adapter.setFooterState(LoadingMoreType.TYPE_LOADING);
                     if (mOnLoadMoreListener != null) {
+                        if (BuildConfig.DEBUG) {
+                            Log.i("LoadMoreRecyclerView", "onLoadMore");
+                        }
                         mOnLoadMoreListener.onLoadMore();
                     }
                 }

@@ -100,6 +100,10 @@ public class HtmlParser {
     }
 
     public <T> Observable<T> parseHtml(final String url, final IHtmlParseProcessor<T> htmlParseProcess) {
+        return parseHtml(url, null, htmlParseProcess);
+    }
+
+    public <T> Observable<T> parseHtml(final String url, final Map<String, String> paramsMap, final IHtmlParseProcessor<T> htmlParseProcess) {
         return Observable
                 .create(new ObservableOnSubscribe<Document>() {
                     @Override
@@ -108,7 +112,11 @@ public class HtmlParser {
                         while (!emitter.isDisposed()) {
                             if (doc == null) {
                                 try {
-                                    doc = Jsoup.connect(url).get();
+                                    if (paramsMap != null && paramsMap.size() > 0) {
+                                        doc = Jsoup.connect(url).data(paramsMap).get();
+                                    } else {
+                                        doc = Jsoup.connect(url).get();
+                                    }
                                     emitter.onNext(doc);
                                     emitter.onComplete();
                                 } catch (InterruptedIOException e) {
