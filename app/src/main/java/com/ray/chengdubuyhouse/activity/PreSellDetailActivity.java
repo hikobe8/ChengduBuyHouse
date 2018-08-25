@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.ray.lib.base.BaseActivity;
 import com.ray.chengdubuyhouse.R;
+import com.ray.lib.base.BaseNetworkObserver;
 import com.ray.lib.network.HtmlParser;
 import com.ray.lib.network.processor.PreSellDetailParseProcessor;
 import com.ray.lib.loading.LoadingViewController;
@@ -27,6 +28,7 @@ import io.reactivex.disposables.Disposable;
 public class PreSellDetailActivity extends BaseActivity {
 
     private LoadingViewController mLoadingViewController;
+    private RecyclerView mRecyclerDetail;
 
     public static void launch(Context context, String url) {
         Intent startIntent = new Intent(context, PreSellDetailActivity.class);
@@ -39,38 +41,40 @@ public class PreSellDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pre_sell_detail);
         setupToolBar(R.id.toolbar);
-        final RecyclerView recyclerDetail = findViewById(R.id.recycler_detail);
-        mLoadingViewController = LoadingViewManager.register(recyclerDetail);
-        recyclerDetail.setLayoutManager(new LinearLayoutManager(this));
-        recyclerDetail.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        mRecyclerDetail = findViewById(R.id.recycler_detail);
+        mLoadingViewController = LoadingViewManager.register(mRecyclerDetail);
+        mRecyclerDetail.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerDetail.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         String url = getIntent().getStringExtra("url");
         mLoadingViewController.switchLoading();
-        HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor()).subscribe(new Observer<List<String>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                addDisposable(d);
-            }
+        HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor()).subscribe(new DetailObserver(this));
+    }
 
-            @Override
-            public void onNext(List<String> datas) {
-                if (datas == null || datas.size() < 1) {
-                    mLoadingViewController.switchEmpty();
-                } else {
-                    recyclerDetail.setAdapter(new DetailAdapter(datas));
-                    mLoadingViewController.switchSuccess();
-                }
-            }
+    static class DetailObserver extends BaseNetworkObserver<PreSellDetailActivity, List<String>> {
 
-            @Override
-            public void onError(Throwable e) {
-                mLoadingViewController.switchError();
-            }
+        public DetailObserver(PreSellDetailActivity preSellDetailActivity) {
+            super(preSellDetailActivity);
+        }
 
-            @Override
-            public void onComplete() {
+        @Override
+        public void onNetworkSubscribe(PreSellDetailActivity preSellDetailActivity, Disposable d) {
+            preSellDetailActivity.addDisposable(d);
+        }
 
+        @Override
+        public void onNetworkNext(PreSellDetailActivity preSellDetailActivity, List<String> list) {
+            if (list == null || list.size() < 1) {
+                preSellDetailActivity.mLoadingViewController.switchEmpty();
+            } else {
+                preSellDetailActivity.mRecyclerDetail.setAdapter(new DetailAdapter(list));
+                preSellDetailActivity.mLoadingViewController.switchSuccess();
             }
-        });
+        }
+
+        @Override
+        public void onNetworkError(PreSellDetailActivity preSellDetailActivity, Throwable e) {
+            preSellDetailActivity.mLoadingViewController.switchError();
+        }
     }
 
     static class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.DetailHolder> {

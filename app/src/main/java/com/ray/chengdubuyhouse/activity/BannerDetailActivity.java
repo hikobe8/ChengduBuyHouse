@@ -14,6 +14,7 @@ import android.view.View;
 import com.ray.lib.base.BaseActivity;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.BannerDetailContentAdapter;
+import com.ray.lib.base.BaseNetworkObserver;
 import com.ray.lib.bean.BannerDetailBean;
 import com.ray.lib.network.HtmlParser;
 import com.ray.lib.network.processor.BannerDetailParseProcessor;
@@ -28,6 +29,8 @@ import io.reactivex.disposables.Disposable;
 public class BannerDetailActivity extends BaseActivity {
 
     private Toolbar toolbar;
+    private RecyclerView mRecyclerView;
+    private LoadingViewController mLoadingViewController;
 
     public static void launch(Context context, String url) {
         Intent intent = new Intent(context, BannerDetailActivity.class);
@@ -40,39 +43,41 @@ public class BannerDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_banner_detail);
         toolbar = findViewById(R.id.toolbar);
-        final RecyclerView recyclerContent = findViewById(R.id.recycler_content);
-        final LoadingViewController loadingViewController = LoadingViewManager.register(recyclerContent);
-        recyclerContent.setLayoutManager(new LinearLayoutManager(this));
-        recyclerContent.addItemDecoration(new BannerDetailDividerItemDecoration(this));
+        mRecyclerView = findViewById(R.id.recycler_content);
+        mLoadingViewController = LoadingViewManager.register(mRecyclerView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new BannerDetailDividerItemDecoration(this));
         setupToolBar(toolbar);
-        loadingViewController.switchLoading();
-        HtmlParser.getInstance().parseHtml(getIntent().getStringExtra("url"), new BannerDetailParseProcessor()).subscribe(new Observer<List<BannerDetailBean>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                addDisposable(d);
-            }
+        mLoadingViewController.switchLoading();
+        HtmlParser.getInstance().parseHtml(getIntent().getStringExtra("url"), new BannerDetailParseProcessor()).subscribe(new DetailObserver(this));
+    }
 
-            @Override
-            public void onNext(List<BannerDetailBean> data) {
-                if (data.size() > 0) {
-                    toolbar.setTitle(data.get(0).getText());
-                    recyclerContent.setAdapter(new BannerDetailContentAdapter(data.subList(1, data.size())));
-                    loadingViewController.switchSuccess();
-                } else {
-                    loadingViewController.switchError();
-                }
-            }
+    static class DetailObserver extends BaseNetworkObserver<BannerDetailActivity, List<BannerDetailBean>> {
 
-            @Override
-            public void onError(Throwable e) {
-                loadingViewController.switchError();
-            }
+        public DetailObserver(BannerDetailActivity bannerDetailActivity) {
+            super(bannerDetailActivity);
+        }
 
-            @Override
-            public void onComplete() {
+        @Override
+        public void onNetworkSubscribe(BannerDetailActivity bannerDetailActivity, Disposable d) {
+            bannerDetailActivity.addDisposable(d);
+        }
 
+        @Override
+        public void onNetworkNext(BannerDetailActivity bannerDetailActivity, List<BannerDetailBean> bannerDetailBeans) {
+            if (bannerDetailBeans.size() > 0) {
+                bannerDetailActivity.toolbar.setTitle(bannerDetailBeans.get(0).getText());
+                bannerDetailActivity.mRecyclerView.setAdapter(new BannerDetailContentAdapter(bannerDetailBeans.subList(1, bannerDetailBeans.size())));
+                bannerDetailActivity.mLoadingViewController.switchSuccess();
+            } else {
+                bannerDetailActivity.mLoadingViewController.switchError();
             }
-        });
+        }
+
+        @Override
+        public void onNetworkError(BannerDetailActivity bannerDetailActivity, Throwable e) {
+            bannerDetailActivity.mLoadingViewController.switchError();
+        }
     }
 
     private static class BannerDetailDividerItemDecoration extends DividerItemDecoration {

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.ray.lib.base.BaseFragment;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.PreSellHouseAdapter;
+import com.ray.lib.base.BaseNetworkObserver;
 import com.ray.lib.bean.BannerBean;
 import com.ray.lib.bean.PreSellHouseBean;
 import com.ray.lib.network.HtmlParser;
@@ -33,11 +34,13 @@ import io.reactivex.disposables.Disposable;
  * Time : 2018/7/27 上午12:22
  * Description :
  */
-public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, Observer<List<PreSellHouseBean>> {
+public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private PreSellHouseAdapter mAdapter;
     private LoadingViewController mLoadingViewController;
     private LinearLayoutManager mLinearLayoutManager;
+    private BannerObserver mBannerSubscriber = new BannerObserver(this);
+    private DataObserver mDataSubscriber = new DataObserver(this);
 
     @Nullable
     @Override
@@ -66,67 +69,69 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
     }
 
     private void requestData() {
-        HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, new PreSellParseProcessor()).subscribe(this);
+        HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, new PreSellParseProcessor()).subscribe(mDataSubscriber);
         HtmlParser.getInstance().parseHtml(NetworkConstant.HOME_BANNER, new BannerParseProcessor()).subscribe(mBannerSubscriber);
     }
 
-    private Observer<List<BannerBean>> mBannerSubscriber = new Observer<List<BannerBean>>() {
-        @Override
-        public void onSubscribe(Disposable d) {
-            addDisposable(d);
+    private static class BannerObserver extends BaseNetworkObserver<PreSellHouseFragment, List<BannerBean>> {
+
+        BannerObserver(PreSellHouseFragment preSellHouseFragment) {
+            super(preSellHouseFragment);
         }
 
         @Override
-        public void onNext(List<BannerBean> datas) {
-            mAdapter.setBannerData(datas);
-            if (mLinearLayoutManager.findFirstVisibleItemPosition() <= 1) {
-                mLinearLayoutManager.scrollToPosition(0);
+        public void onNetworkSubscribe(PreSellHouseFragment preSellHouseFragment, Disposable d) {
+            preSellHouseFragment.addDisposable(d);
+        }
+
+        @Override
+        public void onNetworkNext(PreSellHouseFragment preSellHouseFragment, List<BannerBean> bannerBeans) {
+            preSellHouseFragment.mAdapter.setBannerData(bannerBeans);
+            if (preSellHouseFragment.mLinearLayoutManager.findFirstVisibleItemPosition() <= 1) {
+                preSellHouseFragment.mLinearLayoutManager.scrollToPosition(0);
             }
         }
 
         @Override
-        public void onError(Throwable e) {
+        public void onNetworkError(PreSellHouseFragment preSellHouseFragment, Throwable e) {
 
+        }
+    }
+
+    private static class DataObserver extends BaseNetworkObserver<PreSellHouseFragment, List<PreSellHouseBean>> {
+
+        public DataObserver(PreSellHouseFragment preSellHouseFragment) {
+            super(preSellHouseFragment);
         }
 
         @Override
-        public void onComplete() {
-
+        public void onNetworkSubscribe(PreSellHouseFragment preSellHouseFragment, Disposable d) {
+            preSellHouseFragment.addDisposable(d);
         }
-    };
+
+        @Override
+        public void onNetworkNext(PreSellHouseFragment preSellHouseFragment, List<PreSellHouseBean> preSellHouseBeans) {
+            View view = preSellHouseFragment.getView();
+            if (view != null && view instanceof SwipeRefreshLayout) {
+                ((SwipeRefreshLayout)view).setRefreshing(false);
+            }
+            if (preSellHouseBeans == null || preSellHouseBeans.size() < 1) {
+                preSellHouseFragment.mLoadingViewController.switchEmpty();
+            } else {
+                preSellHouseFragment.mAdapter.setData(preSellHouseBeans);
+                preSellHouseFragment.mLoadingViewController.switchSuccess();
+            }
+        }
+
+        @Override
+        public void onNetworkError(PreSellHouseFragment preSellHouseFragment, Throwable e) {
+            preSellHouseFragment.mLoadingViewController.switchError();
+        }
+    }
 
     @Override
     public void onRefresh() {
       requestData();
-    }
-
-    @Override
-    public void onSubscribe(Disposable d) {
-        addDisposable(d);
-    }
-
-    @Override
-    public void onNext(List<PreSellHouseBean> datas) {
-        View view = getView();
-        if (view != null && view instanceof SwipeRefreshLayout) {
-            ((SwipeRefreshLayout)view).setRefreshing(false);
-        }
-        if (datas == null || datas.size() < 1) {
-            mLoadingViewController.switchEmpty();
-        } else {
-            mAdapter.setData(datas);
-            mLoadingViewController.switchSuccess();
-        }
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        mLoadingViewController.switchError();
-    }
-
-    @Override
-    public void onComplete() {
-
     }
 
 }

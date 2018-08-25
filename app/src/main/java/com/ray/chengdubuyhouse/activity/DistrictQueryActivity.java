@@ -18,6 +18,7 @@ import com.ray.lib.base.BaseActivity;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.DistrictAdapter;
 import com.ray.chengdubuyhouse.adapter.QueryAdapter;
+import com.ray.lib.base.BaseNetworkObserver;
 import com.ray.lib.bean.QueryResultBean;
 import com.ray.lib.db.entity.DistrictEntity;
 import com.ray.lib.network.HtmlParser;
@@ -29,12 +30,10 @@ import com.ray.chengdubuyhouse.widget.NormalItemDivider;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
 public class DistrictQueryActivity extends BaseActivity{
@@ -121,50 +120,33 @@ public class DistrictQueryActivity extends BaseActivity{
                         new QueryParseProcessor(mDistrictViewModel)).subscribe(mQueryObserver);
     }
 
-    private static class QueryObserver implements Observer<List<QueryResultBean>>{
+    private static class QueryObserver extends BaseNetworkObserver<DistrictQueryActivity, List<QueryResultBean>> {
 
-        private WeakReference<DistrictQueryActivity> mDistrictQueryActivityWeakReference;
-
-        public QueryObserver(DistrictQueryActivity districtQueryActivity) {
-            mDistrictQueryActivityWeakReference = new WeakReference<>(districtQueryActivity);
+        QueryObserver(DistrictQueryActivity districtQueryActivity) {
+            super(districtQueryActivity);
         }
 
         @Override
-        public void onSubscribe(Disposable d) {
-            DistrictQueryActivity districtQueryActivity = mDistrictQueryActivityWeakReference.get();
-            if (districtQueryActivity != null) {
-                districtQueryActivity.mRequestDisposable = d;
-                districtQueryActivity.addDisposable(d);
-            }
-
+        public void onNetworkSubscribe(DistrictQueryActivity districtQueryActivity, Disposable d) {
+            districtQueryActivity.mRequestDisposable = d;
+            districtQueryActivity.addDisposable(d);
         }
 
         @Override
-        public void onNext(List<QueryResultBean> data) {
-            DistrictQueryActivity districtQueryActivity = mDistrictQueryActivityWeakReference.get();
-            if (districtQueryActivity != null) {
-                if (data != null && data.size() > 0) {
-                    districtQueryActivity.mQueryAdapter.refreshData(data);
-                    districtQueryActivity.mRecyclerResult.scrollToPosition(0);
-                    districtQueryActivity.mLoadingViewController.switchSuccess();
-                } else {
-                    districtQueryActivity.mLoadingViewController.switchEmpty();
-                }
+        public void onNetworkNext(DistrictQueryActivity districtQueryActivity, List<QueryResultBean> data) {
+            if (data != null && data.size() > 0) {
+                districtQueryActivity.mQueryAdapter.refreshData(data);
+                districtQueryActivity.mRecyclerResult.scrollToPosition(0);
+                districtQueryActivity.mLoadingViewController.switchSuccess();
+            } else {
+                districtQueryActivity.mLoadingViewController.switchEmpty();
             }
         }
 
         @Override
-        public void onError(Throwable e) {
-            DistrictQueryActivity districtQueryActivity = mDistrictQueryActivityWeakReference.get();
-            if (districtQueryActivity != null) {
-                districtQueryActivity.mLoadingViewController.switchError();
-                districtQueryActivity.mRequestDisposable.dispose();
-            }
-        }
-
-        @Override
-        public void onComplete() {
-
+        public void onNetworkError(DistrictQueryActivity districtQueryActivity, Throwable e) {
+            districtQueryActivity.mLoadingViewController.switchError();
+            districtQueryActivity.mRequestDisposable.dispose();
         }
     }
 
