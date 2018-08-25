@@ -18,16 +18,49 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
     private static final int TYPE_FOOTER = 0;
     private static final int TYPE_NORMAL = 1;
 
+    public static final int STATE_LOADING = 1;
+    public static final int STATE_LOADED = 2;
+    public static final int STATE_LAST_PAGE = 3;
+    public static final int STATE_LOAD_ERROR = 4;
+    public static final int STATE_REFRESH = 5;
+
     private LoadingHolder mLoadingHolder;
 
-    private boolean mCanLoadMore = true;
+    private int mLoadState = STATE_LOADED;
 
-    public boolean isCanLoadMore() {
-        return mCanLoadMore;
+    public int getLoadState() {
+        return mLoadState;
     }
 
-    public void setCanLoadMore(boolean canLoadMore) {
-        mCanLoadMore = canLoadMore;
+    private void internalSetLoadState(int loadState) {
+        mLoadState = loadState;
+    }
+
+    public void setDataLoading(){
+        internalSetLoadState(STATE_LOADING);
+    }
+
+    public void setDataLoaded () {
+        internalSetLoadState(STATE_LOADED);
+        setFooterState(LoadingMoreType.TYPE_LOADING);
+    }
+
+    public void setLastPage() {
+        internalSetLoadState(STATE_LAST_PAGE);
+        setFooterState(LoadingMoreType.TYPE_LAST);
+    }
+
+    public void setDataLoadError(){
+        mLoadState = STATE_LOAD_ERROR;
+        setFooterState(LoadingMoreType.TYPE_ERROR);
+    }
+
+    public void setDataRefreshing(){
+        mLoadState = STATE_REFRESH;
+    }
+
+    public boolean isLoaded() {
+        return mLoadState == STATE_LOADED;
     }
 
     public interface OnLoadInErrorStateListener {

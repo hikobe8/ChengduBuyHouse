@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,6 @@ import com.ray.lib.bean.PreSellHouseBean;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 import com.ray.lib.loadmore_recyclerview.LoadMoreRecyclerView;
-import com.ray.lib.loadmore_recyclerview.LoadingMoreType;
 import com.ray.lib.network.HtmlParser;
 import com.ray.lib.network.NetworkConstant;
 import com.ray.lib.network.processor.BannerParseProcessor;
@@ -73,7 +73,9 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
     }
 
     private void loadMoreData() {
+        mAdapter.setDataLoading();
         mPageableData.page ++;
+        Log.i("LoadMoreRecyclerView", mPageableData.page+"");
         Map<String, String> params = new HashMap<>();
         params.put("p", String.valueOf(mPageableData.page));
         HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, params, new PreSellParseProcessor()).subscribe(mDataSubscriber);
@@ -134,16 +136,11 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
             if (view != null && view instanceof SwipeRefreshLayout) {
                 if (((SwipeRefreshLayout)view).isRefreshing()) {
                     ((SwipeRefreshLayout)view).setRefreshing(false);
-                    preSellHouseFragment.mAdapter.setCanLoadMore(true);
                 }
             }
-            if (!preSellHouseFragment.mAdapter.isCanLoadMore())
-                return;
-
             if (listPageableResponseBean == null) {
                 if (preSellHouseFragment.mAdapter.getNormalItemCount() > 0) {
-                    preSellHouseFragment.mAdapter.setFooterState(LoadingMoreType.TYPE_ERROR);
-                    preSellHouseFragment.mAdapter.setCanLoadMore(false);
+                    preSellHouseFragment.mAdapter.setDataLoadError();
                 } else {
                     preSellHouseFragment.mLoadingViewController.switchEmpty();
                 }
@@ -152,8 +149,7 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
             List<PreSellHouseBean> preSellHouseBeans = listPageableResponseBean.data;
             if (preSellHouseBeans == null || preSellHouseBeans.size() < 1) {
                 if (preSellHouseFragment.mAdapter.getNormalItemCount() > 0) {
-                    preSellHouseFragment.mAdapter.setFooterState(LoadingMoreType.TYPE_LAST);
-                    preSellHouseFragment.mAdapter.setCanLoadMore(false);
+                    preSellHouseFragment.mAdapter.setLastPage();
                 } else {
                     preSellHouseFragment.mLoadingViewController.switchEmpty();
                 }
@@ -166,11 +162,9 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
                 }
                 if (preSellHouseFragment.mAdapter.getNormalItemCount() > 0) {
                     if (preSellHouseFragment.mPageableData.isLastPage()) {
-                        preSellHouseFragment.mAdapter.setFooterState(LoadingMoreType.TYPE_LAST);
-                        preSellHouseFragment.mAdapter.setCanLoadMore(false);
-                    } else if (preSellHouseFragment.mPageableData.page <= 1) {
-                        preSellHouseFragment.mAdapter.setFooterState(LoadingMoreType.TYPE_LOADING);
-                        preSellHouseFragment.mAdapter.setCanLoadMore(true);
+                        preSellHouseFragment.mAdapter.setLastPage();
+                    } else {
+                        preSellHouseFragment.mAdapter.setDataLoaded();
                     }
                 }
                 preSellHouseFragment.mLoadingViewController.switchSuccess();
@@ -179,13 +173,17 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
 
         @Override
         public void onNetworkError(PreSellHouseFragment preSellHouseFragment, Throwable e) {
-            preSellHouseFragment.mLoadingViewController.switchError();
+            if (preSellHouseFragment.mAdapter.getNormalItemCount() > 0) {
+                preSellHouseFragment.mAdapter.setDataLoadError();
+            } else {
+                preSellHouseFragment.mLoadingViewController.switchError();
+            }
         }
     }
 
     @Override
     public void onRefresh() {
-        mAdapter.setCanLoadMore(false);
+        mAdapter.setDataRefreshing();
         mPageableData.reset();
         HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, new PreSellParseProcessor()).subscribe(mDataSubscriber);
     }
