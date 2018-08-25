@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ray.chengdubuyhouse.R;
-import com.ray.chengdubuyhouse.bean.QueryResultBean;
+import com.ray.lib.bean.QueryResultBean;
 
 import java.util.ArrayList;
 import java.util.List;

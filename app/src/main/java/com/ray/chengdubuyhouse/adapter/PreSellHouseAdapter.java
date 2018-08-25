@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import com.ray.chengdubuyhouse.activity.PreSellDetailActivity;
 import com.ray.chengdubuyhouse.R;
-import com.ray.chengdubuyhouse.bean.BannerBean;
-import com.ray.chengdubuyhouse.bean.PreSellHouseBean;
+import com.ray.lib.bean.BannerBean;
+import com.ray.lib.bean.PreSellHouseBean;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.ray.chengdubuyhouse.R;
-import com.ray.chengdubuyhouse.bean.BannerDetailBean;
+import com.ray.lib.bean.BannerDetailBean;
 
 import java.util.List;
 

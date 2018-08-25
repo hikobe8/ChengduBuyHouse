@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.ray.chengdubuyhouse.activity.BannerDetailActivity;
 import com.ray.chengdubuyhouse.R;
-import com.ray.chengdubuyhouse.bean.BannerBean;
+import com.ray.lib.bean.BannerBean;
 
 import java.util.ArrayList;
 import java.util.List;

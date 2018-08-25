@@ -11,12 +11,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.ray.chengdubuyhouse.BaseActivity;
+import com.ray.lib.base.BaseActivity;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.BannerDetailContentAdapter;
-import com.ray.chengdubuyhouse.bean.BannerDetailBean;
-import com.ray.chengdubuyhouse.network.HtmlParser;
-import com.ray.chengdubuyhouse.network.processor.BannerDetailParseProcessor;
+import com.ray.lib.bean.BannerDetailBean;
+import com.ray.lib.network.HtmlParser;
+import com.ray.lib.network.processor.BannerDetailParseProcessor;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 

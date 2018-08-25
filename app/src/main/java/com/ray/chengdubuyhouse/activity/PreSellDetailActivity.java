@@ -12,10 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ray.chengdubuyhouse.BaseActivity;
+import com.ray.lib.base.BaseActivity;
 import com.ray.chengdubuyhouse.R;
-import com.ray.chengdubuyhouse.network.HtmlParser;
-import com.ray.chengdubuyhouse.network.processor.PreSellDetailParseProcessor;
+import com.ray.lib.network.HtmlParser;
+import com.ray.lib.network.processor.PreSellDetailParseProcessor;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 

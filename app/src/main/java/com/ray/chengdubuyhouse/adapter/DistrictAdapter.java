@@ -9,9 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ray.chengdubuyhouse.R;
-import com.ray.chengdubuyhouse.db.entity.DistrictEntity;
-import com.ray.chengdubuyhouse.util.SPUtil;
-import com.ray.chengdubuyhouse.viewmodel.DistrictViewModel;
+import com.ray.lib.db.entity.DistrictEntity;
 
 import java.util.ArrayList;
 import java.util.List;
