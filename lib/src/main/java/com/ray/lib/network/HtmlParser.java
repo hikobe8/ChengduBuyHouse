@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -119,6 +120,8 @@ public class HtmlParser {
                                     }
                                     emitter.onNext(doc);
                                     emitter.onComplete();
+                                } catch (SocketTimeoutException e) {
+                                    return;
                                 } catch (InterruptedIOException e) {
                                     return;
                                 }
