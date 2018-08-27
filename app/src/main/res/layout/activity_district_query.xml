@@ -14,10 +14,17 @@
 
         <include layout="@layout/common_toolbar"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_result"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent">
+
+            <com.ray.lib.loadmore_recyclerview.LoadMoreRecyclerView
+                android:id="@+id/recycler_result"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
 
     </LinearLayout>
 

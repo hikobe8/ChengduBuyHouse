@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,8 +21,12 @@ import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.adapter.DistrictAdapter;
 import com.ray.chengdubuyhouse.adapter.QueryAdapter;
 import com.ray.lib.base.BaseNetworkObserver;
+import com.ray.lib.bean.PageableData;
+import com.ray.lib.bean.PageableResponseBean;
 import com.ray.lib.bean.QueryResultBean;
 import com.ray.lib.db.entity.DistrictEntity;
+import com.ray.lib.loadmore_recyclerview.LoadMoreAdapter;
+import com.ray.lib.loadmore_recyclerview.LoadMoreRecyclerView;
 import com.ray.lib.network.HtmlParser;
 import com.ray.lib.network.NetworkConstant;
 import com.ray.lib.network.processor.QueryParseProcessor;
@@ -46,7 +52,10 @@ public class DistrictQueryActivity extends BaseActivity{
     private Disposable mRequestDisposable;
     private QueryObserver mQueryObserver;
     private Toolbar mToolbar;
-    private RecyclerView mRecyclerResult;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private LoadMoreRecyclerView mRecyclerResult;
+    private String mRegionCode = "00";
+    private PageableData mPageableData = new PageableData();
 
     public static void launch(Context context) {
         Intent startIntent = new Intent(context, DistrictQueryActivity.class);
@@ -58,6 +67,7 @@ public class DistrictQueryActivity extends BaseActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_district_query);
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        mSwipeRefreshLayout = findViewById(R.id.swipe);
         mToolbar = findViewById(R.id.toolbar);
         setupToolBar(mToolbar);
         mRecyclerResult = findViewById(R.id.recycler_result);
@@ -74,16 +84,34 @@ public class DistrictQueryActivity extends BaseActivity{
                 mDistrictAdapter.setData(districtEntities);
             }
         });
-        String cachedCode = "00";
         DistrictEntity cachedDistrict = mDistrictViewModel.getCachedDistrictEntity();
         if (cachedDistrict != null) {
             mToolbar.setTitle(cachedDistrict.getName());
-            cachedCode = cachedDistrict.getRegionCode();
+            mRegionCode = cachedDistrict.getRegionCode();
         } else {
             mToolbar.setTitle("所有区域");
         }
-        requestData(cachedCode);
-        initRegionRv(rvDistrict, cachedCode);
+        initRegionRv(rvDistrict);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshData();
+            }
+        });
+        mRecyclerResult.setOnLoadMoreListener(new LoadMoreRecyclerView.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                Log.e("test", "page = " + mPageableData.page+"");
+                loadMoreData();
+            }
+        });
+        mQueryAdapter.setOnLoadInErrorStateListener(new LoadMoreAdapter.OnLoadInErrorStateListener() {
+            @Override
+            public void onLoadInErrorState() {
+                requestData();
+            }
+        });
+        refreshData();
     }
 
     @Override
@@ -101,15 +129,25 @@ public class DistrictQueryActivity extends BaseActivity{
         return super.onOptionsItemSelected(item);
     }
 
-    private void requestData(String code) {
+    private void loadMoreData() {
+        mPageableData.page ++;
+        requestData();
+    }
+
+    private void refreshData(){
+        mQueryAdapter.setDataRefreshing();
+        mLoadingViewController.switchLoading();
         if (mRequestDisposable != null && !mRequestDisposable.isDisposed()) {
             mRequestDisposable.dispose();
             mRequestDisposable = null;
         }
+        requestData();
+    }
+
+    private void requestData() {
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("regioncode", code);
-        paramsMap.put("pageNo", "1");
-        mLoadingViewController.switchLoading();
+        paramsMap.put("regioncode", mRegionCode);
+        paramsMap.put("pageNo", String.valueOf(mPageableData.page));
         if (mQueryObserver == null) {
             mQueryObserver = new QueryObserver(this);
         }
@@ -120,7 +158,7 @@ public class DistrictQueryActivity extends BaseActivity{
                         new QueryParseProcessor(mDistrictViewModel)).subscribe(mQueryObserver);
     }
 
-    private static class QueryObserver extends BaseNetworkObserver<DistrictQueryActivity, List<QueryResultBean>> {
+    private static class QueryObserver extends BaseNetworkObserver<DistrictQueryActivity, PageableResponseBean<List<QueryResultBean>>> {
 
         QueryObserver(DistrictQueryActivity districtQueryActivity) {
             super(districtQueryActivity);
@@ -133,34 +171,69 @@ public class DistrictQueryActivity extends BaseActivity{
         }
 
         @Override
-        public void onNetworkNext(DistrictQueryActivity districtQueryActivity, List<QueryResultBean> data) {
-            if (data != null && data.size() > 0) {
-                districtQueryActivity.mQueryAdapter.refreshData(data);
-                districtQueryActivity.mRecyclerResult.scrollToPosition(0);
-                districtQueryActivity.mLoadingViewController.switchSuccess();
+        public void onNetworkNext(DistrictQueryActivity districtQueryActivity, PageableResponseBean<List<QueryResultBean>> listPageableResponseBean) {
+            setRefreshComplete(districtQueryActivity);
+            if (listPageableResponseBean != null && listPageableResponseBean.data != null && listPageableResponseBean.data.size() >0) {
+                List<QueryResultBean> data = listPageableResponseBean.data;
+                if (districtQueryActivity.mQueryAdapter.getLoadState() == LoadMoreAdapter.STATE_REFRESH) {
+                    //刷新的结果
+                    districtQueryActivity.mQueryAdapter.refreshData(data);
+                    districtQueryActivity.mRecyclerResult.scrollToPosition(0);
+                    districtQueryActivity.mLoadingViewController.switchSuccess();
+                } else {
+                    //加载更多的结果
+                    districtQueryActivity.mQueryAdapter.addData(data);
+                }
+                districtQueryActivity.mPageableData = listPageableResponseBean.pageableData;
+                if (districtQueryActivity.mPageableData.isLastPage()) {
+                    districtQueryActivity.mQueryAdapter.setLastPage();
+                } else {
+                    districtQueryActivity.mQueryAdapter.setDataLoaded();
+                }
             } else {
-                districtQueryActivity.mLoadingViewController.switchEmpty();
+                if (districtQueryActivity.mQueryAdapter.getNormalItemCount() > 0) {
+                    districtQueryActivity.mQueryAdapter.setLastPage();
+                } else {
+                    districtQueryActivity.mLoadingViewController.switchEmpty();
+                }
             }
         }
 
         @Override
         public void onNetworkError(DistrictQueryActivity districtQueryActivity, Throwable e) {
-            districtQueryActivity.mLoadingViewController.switchError();
-            districtQueryActivity.mRequestDisposable.dispose();
+            setRefreshComplete(districtQueryActivity);
+            if (districtQueryActivity.mQueryAdapter.getNormalItemCount() > 0) {
+                if (districtQueryActivity.mPageableData.isLastPage()) {
+                    districtQueryActivity.mQueryAdapter.setLastPage();
+                } else {
+                    districtQueryActivity.mQueryAdapter.setDataLoadError();
+                }
+            } else {
+                districtQueryActivity.mLoadingViewController.switchError();
+            }
         }
     }
 
-    private void initRegionRv(RecyclerView rvDistrict, String cachedCode) {
+    private static void setRefreshComplete(DistrictQueryActivity districtQueryActivity) {
+        if (districtQueryActivity.mSwipeRefreshLayout != null && districtQueryActivity.mSwipeRefreshLayout.isRefreshing()) {
+            districtQueryActivity.mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private void initRegionRv(RecyclerView rvDistrict) {
         rvDistrict.setLayoutManager(new LinearLayoutManager(this));
         rvDistrict.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        mDistrictAdapter = new DistrictAdapter(this, cachedCode);
+        mDistrictAdapter = new DistrictAdapter(this, mRegionCode);
         mDistrictAdapter.setOnItemClickListener(new DistrictAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DistrictEntity districtEntity) {
-                String regionCode = districtEntity.getRegionCode();
-                requestData(regionCode);
-                SPUtil.getInstance(mActivity).putString(SPUtil.KEY.KEY_SELECTED_DISTRICT, districtEntity.toString());
                 mDrawerLayout.closeDrawer(Gravity.END);
+                if (mRegionCode.equals(districtEntity.getRegionCode()))
+                    return;
+                mPageableData.reset();
+                mRegionCode = districtEntity.getRegionCode();
+                refreshData();
+                SPUtil.getInstance(mActivity).putString(SPUtil.KEY.KEY_SELECTED_DISTRICT, districtEntity.toString());
                 mToolbar.setTitle(districtEntity.getName());
             }
         });

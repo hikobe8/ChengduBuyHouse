@@ -143,12 +143,7 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
 
         @Override
         public void onNetworkNext(PreSellHouseFragment preSellHouseFragment, PageableResponseBean<List<PreSellHouseBean>> listPageableResponseBean) {
-            View view = preSellHouseFragment.getView();
-            if (view != null && view instanceof SwipeRefreshLayout) {
-                if (((SwipeRefreshLayout)view).isRefreshing()) {
-                    ((SwipeRefreshLayout)view).setRefreshing(false);
-                }
-            }
+            setRefreshComplete(preSellHouseFragment);
             if (listPageableResponseBean == null) {
                 if (preSellHouseFragment.mAdapter.getNormalItemCount() > 0) {
                     preSellHouseFragment.mAdapter.setDataLoadError();
@@ -166,7 +161,7 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
                 }
             } else {
                 preSellHouseFragment.mPageableData = listPageableResponseBean.pageableData;
-                if (preSellHouseFragment.mPageableData.page <= 1) {
+                if (preSellHouseFragment.mAdapter.isRefreshing()) {
                     preSellHouseFragment.mAdapter.refreshData(preSellHouseBeans);
                 } else {
                     preSellHouseFragment.mAdapter.addData(preSellHouseBeans);
@@ -184,10 +179,20 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
 
         @Override
         public void onNetworkError(PreSellHouseFragment preSellHouseFragment, Throwable e) {
+            setRefreshComplete(preSellHouseFragment);
             if (preSellHouseFragment.mAdapter.getNormalItemCount() > 0) {
                 preSellHouseFragment.mAdapter.setDataLoadError();
             } else {
                 preSellHouseFragment.mLoadingViewController.switchError();
+            }
+        }
+    }
+
+    private static void setRefreshComplete(PreSellHouseFragment preSellHouseFragment) {
+        View view = preSellHouseFragment.getView();
+        if (view != null && view instanceof SwipeRefreshLayout) {
+            if (((SwipeRefreshLayout)view).isRefreshing()) {
+                ((SwipeRefreshLayout)view).setRefreshing(false);
             }
         }
     }

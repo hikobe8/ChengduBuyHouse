@@ -63,6 +63,7 @@ public class DistrictAdapter extends RecyclerView.Adapter<DistrictAdapter.Distri
                     mOnItemClickListener.onItemClick(holder.mDistrictEntity);
                     mSelectedRegionCode = holder.mDistrictEntity.getRegionCode();
                 }
+                notifyDataSetChanged();
             }
         });
         if (mSelectedRegionCode.equals(holder.mDistrictEntity.getRegionCode())) {

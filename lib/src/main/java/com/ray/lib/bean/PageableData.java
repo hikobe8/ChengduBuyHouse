@@ -18,7 +18,7 @@ public class PageableData implements IKeepProguard {
     }
 
     public boolean isLastPage(){
-        return page == total;
+        return page >= total;
     }
 
 }

@@ -1,8 +1,10 @@
 package com.ray.lib.network.processor;
 
 
+import com.ray.lib.bean.PageableResponseBean;
 import com.ray.lib.bean.QueryResultBean;
 import com.ray.lib.db.entity.DistrictEntity;
+import com.ray.lib.util.PageDataUtil;
 import com.ray.lib.viewmodel.DistrictViewModel;
 
 import org.jsoup.nodes.Document;
@@ -17,7 +19,7 @@ import java.util.List;
  * Time : 2018/7/31 下午10:26
  * Description :
  */
-public class QueryParseProcessor implements IHtmlParseProcessor<List<QueryResultBean>> {
+public class QueryParseProcessor implements IHtmlParseProcessor<PageableResponseBean<List<QueryResultBean>>> {
 
     private DistrictViewModel mDistrictViewModel;
 
@@ -26,7 +28,9 @@ public class QueryParseProcessor implements IHtmlParseProcessor<List<QueryResult
     }
 
     @Override
-    public List<QueryResultBean> processParse(Document doc) {
+    public PageableResponseBean<List<QueryResultBean>> processParse(Document doc) {
+        PageableResponseBean<List<QueryResultBean>> listPageableResponseBean = new PageableResponseBean<>();
+        fillPageData(doc, listPageableResponseBean);
         Elements trElements = doc.select("tbody#_projectInfo > tr");
         List<QueryResultBean> resultBeanList = new ArrayList<>();
         for (int i = 0; i < trElements.size(); i ++) {
@@ -55,7 +59,20 @@ public class QueryParseProcessor implements IHtmlParseProcessor<List<QueryResult
             }
             mDistrictViewModel.insertDistricts(districtEntityList);
         }
-        return resultBeanList;
+        listPageableResponseBean.data = resultBeanList;
+        return listPageableResponseBean;
+    }
+
+    private void fillPageData(Document doc, PageableResponseBean<List<QueryResultBean>> listPageableResponseBean) {
+        Element pageBox = doc.select("div.pages-box").first();
+        Element totalElement = doc.select("div.pages-box > a").last();
+        try {
+            listPageableResponseBean.pageableData.page = PageDataUtil.getSingleIngeterValue(pageBox.select("a.on").first().attr("onclick"));
+            listPageableResponseBean.pageableData.total = PageDataUtil.getSingleIngeterValue(totalElement.attr("onclick"));
+        } catch (Exception e) {
+            listPageableResponseBean.pageableData.page = 0;
+            listPageableResponseBean.pageableData.total = 0;
+        }
     }
 
 }

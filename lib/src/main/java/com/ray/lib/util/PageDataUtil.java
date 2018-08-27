@@ -24,4 +24,14 @@ public class PageDataUtil {
         pageableResponseBean.pageableData.total = Integer.valueOf(totalText);
     }
 
+    public static int getSingleIngeterValue(String pageText) {
+        Pattern pattern = Pattern.compile("[^0-9]");
+        Matcher matcher = pattern.matcher(pageText);
+        try {
+            return Integer.valueOf(matcher.replaceAll(""));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
 }

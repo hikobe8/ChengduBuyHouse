@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.ray.chengdubuyhouse.R;
 import com.ray.lib.bean.QueryResultBean;
+import com.ray.lib.loadmore_recyclerview.LoadMoreAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
  * Time : 2018/8/7 下午11:49
  * Description :
  */
-public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.QueryHolder> {
+public class QueryAdapter extends LoadMoreAdapter {
 
     private List<QueryResultBean> mResultBeanList = new ArrayList<>();
 
@@ -33,24 +34,24 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.QueryHolder>
 
     public void addData(List<QueryResultBean> dataList) {
         if (dataList != null) {
+            int size = getNormalItemCount();
             mResultBeanList.addAll(dataList);
-            notifyItemRangeInserted(getItemCount(), dataList.size());
+            notifyItemRangeInserted(size, dataList.size());
         }
     }
 
-    @NonNull
     @Override
-    public QueryHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    protected RecyclerView.ViewHolder onCreateNormalViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new QueryHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_query, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull QueryHolder holder, int position) {
-        holder.bindData(mResultBeanList.get(position));
+    protected void onBindNormalViewHolder(RecyclerView.ViewHolder holder, int position) {
+        ((QueryHolder)holder).bindData(mResultBeanList.get(position));
     }
 
     @Override
-    public int getItemCount() {
+    public int getNormalItemCount() {
         return mResultBeanList.size();
     }
 
@@ -66,7 +67,7 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.QueryHolder>
         TextView mTvSelectTime;
         TextView mTvStatus;
 
-        public QueryHolder(View itemView) {
+        QueryHolder(View itemView) {
             super(itemView);
             mTvName = itemView.findViewById(R.id.tv_name);
             mTvAddress = itemView.findViewById(R.id.tv_address);
@@ -93,6 +94,8 @@ public class QueryAdapter extends RecyclerView.Adapter<QueryAdapter.QueryHolder>
                 mTvStatus.setTextColor(context.getResources().getColor(R.color.colorMain));
             } else if ("未报名".equals(resultBean.getStatus())) {
                 mTvStatus.setTextColor(context.getResources().getColor(R.color.colorWaiting));
+            } else if ("报名结束".equals(resultBean.getStatus())) {
+                mTvStatus.setTextColor(context.getResources().getColor(R.color.colorAccent));
             }
             mTvStatus.setText(resultBean.getStatus());
         }
