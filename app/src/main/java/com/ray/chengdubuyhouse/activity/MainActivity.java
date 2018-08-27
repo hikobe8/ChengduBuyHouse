@@ -1,5 +1,7 @@
 package com.ray.chengdubuyhouse.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String CONTENT_FRAGMENT_TAG = "PreSell";
+    private static final String SHARE_URL = "http://android.myapp.com/myapp/detail.htm?apkName=com.soda.sodaweather";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +102,20 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
-
+            Intent share_intent = new Intent();
+            share_intent.setAction(Intent.ACTION_SEND);//设置分享行为
+            share_intent.setType("text/plain");//设置分享内容的类型
+            share_intent.putExtra(Intent.EXTRA_SUBJECT, "成都买房宝");//添加分享内容标题
+            share_intent.putExtra(Intent.EXTRA_TEXT, "成都买房宝-房源信息查询神器,点击下载" + SHARE_URL);//添加分享内容
+            //创建分享的Dialog
+            share_intent = Intent.createChooser(share_intent, "摇号必中");
+            startActivity(share_intent);
         } else if (id == R.id.nav_send) {
+            Intent data=new Intent(Intent.ACTION_SENDTO);
+            data.setData(Uri.parse("mailto:hikobe8@163.com"));
+            data.putExtra(Intent.EXTRA_SUBJECT, "成都买房宝");
+            data.putExtra(Intent.EXTRA_TEXT, "");
+            startActivity(data);
 
         }
 
