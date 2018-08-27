@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.ray.chengdubuyhouse.BuildConfig;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.fragment.PreSellHouseFragment;
 
@@ -23,7 +24,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String CONTENT_FRAGMENT_TAG = "PreSell";
-    private static final String SHARE_URL = "http://android.myapp.com/myapp/detail.htm?apkName=com.soda.sodaweather";
+    private static final String SHARE_URL = "http://android.myapp.com/myapp/detail.htm?apkName="+ BuildConfig.APPLICATION_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
