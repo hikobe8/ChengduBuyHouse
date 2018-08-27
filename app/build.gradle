@@ -20,9 +20,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
     }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "ChengduHouse_v${variant.versionName}_${releaseTime()}.apk"
+        }
+    }
+
 }
 
 dependencies {
     implementation project(':lib')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+}
+
+static def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
 }
