@@ -38,6 +38,7 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public void setDataLoading(){
         internalSetLoadState(STATE_LOADING);
+        setFooterState(LoadingMoreType.TYPE_LOADING);
     }
 
     public void setDataLoaded () {

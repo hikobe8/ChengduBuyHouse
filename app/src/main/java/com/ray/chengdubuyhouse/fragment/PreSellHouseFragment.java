@@ -21,6 +21,7 @@ import com.ray.lib.bean.PageableResponseBean;
 import com.ray.lib.bean.PreSellHouseBean;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
+import com.ray.lib.loadmore_recyclerview.LoadMoreAdapter;
 import com.ray.lib.loadmore_recyclerview.LoadMoreRecyclerView;
 import com.ray.lib.network.HtmlParser;
 import com.ray.lib.network.NetworkConstant;
@@ -70,11 +71,21 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
                 loadMoreData();
             }
         });
+        mAdapter.setOnLoadInErrorStateListener(new LoadMoreAdapter.OnLoadInErrorStateListener() {
+            @Override
+            public void onLoadInErrorState() {
+                mAdapter.setDataLoading();
+                Log.i("LoadMoreRecyclerView", mPageableData.page+"");
+                Map<String, String> params = new HashMap<>();
+                params.put("p", String.valueOf(mPageableData.page));
+                HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, params, new PreSellParseProcessor()).subscribe(mDataSubscriber);
+            }
+        });
     }
 
     private void loadMoreData() {
-        mAdapter.setDataLoading();
         mPageableData.page ++;
+        mAdapter.setDataLoading();
         Log.i("LoadMoreRecyclerView", mPageableData.page+"");
         Map<String, String> params = new HashMap<>();
         params.put("p", String.valueOf(mPageableData.page));
