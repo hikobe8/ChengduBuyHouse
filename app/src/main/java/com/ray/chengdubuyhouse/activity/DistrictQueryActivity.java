@@ -95,6 +95,7 @@ public class DistrictQueryActivity extends BaseActivity{
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                mPageableData.reset();
                 refreshData();
             }
         });
