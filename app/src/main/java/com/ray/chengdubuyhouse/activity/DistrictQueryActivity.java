@@ -111,6 +111,7 @@ public class DistrictQueryActivity extends BaseActivity{
                 requestData();
             }
         });
+        mLoadingViewController.switchLoading();
         refreshData();
     }
 
@@ -136,7 +137,6 @@ public class DistrictQueryActivity extends BaseActivity{
 
     private void refreshData(){
         mQueryAdapter.setDataRefreshing();
-        mLoadingViewController.switchLoading();
         if (mRequestDisposable != null && !mRequestDisposable.isDisposed()) {
             mRequestDisposable.dispose();
             mRequestDisposable = null;
