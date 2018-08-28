@@ -158,4 +158,45 @@ public class QueryResultBean implements Parcelable {
         return canSelect;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        QueryResultBean that = (QueryResultBean) o;
+
+        if (canSelect != that.canSelect) return false;
+        if (district != null ? !district.equals(that.district) : that.district != null)
+            return false;
+        if (projectName != null ? !projectName.equals(that.projectName) : that.projectName != null)
+            return false;
+        if (sellNo != null ? !sellNo.equals(that.sellNo) : that.sellNo != null) return false;
+        if (range != null ? !range.equals(that.range) : that.range != null) return false;
+        if (houseCount != null ? !houseCount.equals(that.houseCount) : that.houseCount != null)
+            return false;
+        if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
+        if (startTime != null ? !startTime.equals(that.startTime) : that.startTime != null)
+            return false;
+        if (endTime != null ? !endTime.equals(that.endTime) : that.endTime != null) return false;
+        if (selectEndTime != null ? !selectEndTime.equals(that.selectEndTime) : that.selectEndTime != null)
+            return false;
+        return status != null ? status.equals(that.status) : that.status == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = district != null ? district.hashCode() : 0;
+        result = 31 * result + (projectName != null ? projectName.hashCode() : 0);
+        result = 31 * result + (sellNo != null ? sellNo.hashCode() : 0);
+        result = 31 * result + (range != null ? range.hashCode() : 0);
+        result = 31 * result + (houseCount != null ? houseCount.hashCode() : 0);
+        result = 31 * result + (phone != null ? phone.hashCode() : 0);
+        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
+        result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
+        result = 31 * result + (selectEndTime != null ? selectEndTime.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (canSelect ? 1 : 0);
+        return result;
+    }
 }

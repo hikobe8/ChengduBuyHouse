@@ -62,12 +62,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <TextView
-                android:id="@+id/tv_phone"
+            <LinearLayout
                 android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-                android:textSize="@dimen/normal_item_size_small"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_phone"
+                    android:text="sasdfas"
+                    android:textSize="@dimen/normal_item_size_small"
+                    android:layout_width="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content" />
+
+                <ImageButton
+                    android:id="@+id/iv_call"
+                    style="?attr/actionButtonStyle"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginLeft="@dimen/nav_header_vertical_spacing"
+                    android:src="@drawable/ic_phone_black_24dp"
+                  />
+
+            </LinearLayout>
+
 
             <TextView
                 android:id="@+id/tv_start_end_time"

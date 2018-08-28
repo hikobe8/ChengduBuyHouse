@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.ray.lib.db.DistrictRepository;
 import com.ray.lib.db.entity.DistrictEntity;
@@ -40,7 +41,16 @@ public class DistrictViewModel extends AndroidViewModel {
     }
 
     public DistrictEntity getCachedDistrictEntity(){
-        return mDistrictRepository.getCachedDistrictEntity();
+        DistrictEntity cachedDistrictEntity = mDistrictRepository.getCachedDistrictEntity();
+        if (cachedDistrictEntity == null) {
+            cachedDistrictEntity = new DistrictEntity("00", "所有区域");
+        } else {
+            if (TextUtils.isEmpty(cachedDistrictEntity.getName()) || TextUtils.isEmpty(cachedDistrictEntity.getRegionCode())) {
+                cachedDistrictEntity.setName("所有区域");
+                cachedDistrictEntity.setRegionCode("00");
+            }
+        }
+        return cachedDistrictEntity;
     }
 
 }

@@ -1,16 +1,24 @@
 package com.ray.chengdubuyhouse.activity;
 
+import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -42,9 +50,10 @@ import java.util.Map;
 
 import io.reactivex.disposables.Disposable;
 
-public class DistrictQueryActivity extends BaseActivity{
+public class DistrictQueryActivity extends BaseActivity {
 
     private LoadingViewController mLoadingViewController;
+    private LoadingViewController mDistrictLoadingViewController;
     private QueryAdapter mQueryAdapter;
     private DistrictAdapter mDistrictAdapter;
     private DistrictViewModel mDistrictViewModel;
@@ -54,8 +63,9 @@ public class DistrictQueryActivity extends BaseActivity{
     private Toolbar mToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LoadMoreRecyclerView mRecyclerResult;
-    private String mRegionCode = "00";
+    private String mRegionCode;
     private PageableData mPageableData = new PageableData();
+    private String mPhoneNumber;
 
     public static void launch(Context context) {
         Intent startIntent = new Intent(context, DistrictQueryActivity.class);
@@ -77,20 +87,6 @@ public class DistrictQueryActivity extends BaseActivity{
         mQueryAdapter = new QueryAdapter();
         mRecyclerResult.setAdapter(mQueryAdapter);
         mRecyclerResult.addItemDecoration(new NormalItemDivider(this));
-        mDistrictViewModel = ViewModelProviders.of(this).get(DistrictViewModel.class);
-        mDistrictViewModel.getListLiveData().observe(this, new android.arch.lifecycle.Observer<List<DistrictEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<DistrictEntity> districtEntities) {
-                mDistrictAdapter.setData(districtEntities);
-            }
-        });
-        DistrictEntity cachedDistrict = mDistrictViewModel.getCachedDistrictEntity();
-        if (cachedDistrict != null) {
-            mToolbar.setTitle(cachedDistrict.getName());
-            mRegionCode = cachedDistrict.getRegionCode();
-        } else {
-            mToolbar.setTitle("所有区域");
-        }
         initRegionRv(rvDistrict);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -102,7 +98,7 @@ public class DistrictQueryActivity extends BaseActivity{
         mRecyclerResult.setOnLoadMoreListener(new LoadMoreRecyclerView.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                Log.e("test", "page = " + mPageableData.page+"");
+                Log.e("test", "page = " + mPageableData.page + "");
                 loadMoreData();
             }
         });
@@ -110,6 +106,13 @@ public class DistrictQueryActivity extends BaseActivity{
             @Override
             public void onLoadInErrorState() {
                 requestData();
+            }
+        });
+        mQueryAdapter.setCallPhoneCallback(new QueryAdapter.CallPhoneCallback() {
+            @Override
+            public void onMakeCall(String phone) {
+                mPhoneNumber = phone;
+                callPhone();
             }
         });
         mLoadingViewController.switchLoading();
@@ -132,11 +135,11 @@ public class DistrictQueryActivity extends BaseActivity{
     }
 
     private void loadMoreData() {
-        mPageableData.page ++;
+        mPageableData.page++;
         requestData();
     }
 
-    private void refreshData(){
+    private void refreshData() {
         mQueryAdapter.setDataRefreshing();
         if (mRequestDisposable != null && !mRequestDisposable.isDisposed()) {
             mRequestDisposable.dispose();
@@ -174,7 +177,7 @@ public class DistrictQueryActivity extends BaseActivity{
         @Override
         public void onNetworkNext(DistrictQueryActivity districtQueryActivity, PageableResponseBean<List<QueryResultBean>> listPageableResponseBean) {
             setRefreshComplete(districtQueryActivity);
-            if (listPageableResponseBean != null && listPageableResponseBean.data != null && listPageableResponseBean.data.size() >0) {
+            if (listPageableResponseBean != null && listPageableResponseBean.data != null && listPageableResponseBean.data.size() > 0) {
                 List<QueryResultBean> data = listPageableResponseBean.data;
                 if (districtQueryActivity.mQueryAdapter.getLoadState() == LoadMoreAdapter.STATE_REFRESH) {
                     //刷新的结果
@@ -221,7 +224,42 @@ public class DistrictQueryActivity extends BaseActivity{
         }
     }
 
+    private void callPhone() {
+        if (TextUtils.isEmpty(mPhoneNumber))
+            return;
+        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        callIntent.setData(Uri.parse("tel:" + mPhoneNumber));//change the number
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 0);
+            return;
+        }
+        startActivity(callIntent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length >= 1) {
+            callPhone();
+        }
+    }
+
     private void initRegionRv(RecyclerView rvDistrict) {
+        mDistrictLoadingViewController = LoadingViewManager.register(rvDistrict);
+        mDistrictLoadingViewController.switchLoading();
+        mDistrictViewModel = ViewModelProviders.of(this).get(DistrictViewModel.class);
+        mDistrictViewModel.getListLiveData().observe(this, new android.arch.lifecycle.Observer<List<DistrictEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<DistrictEntity> districtEntities) {
+                if (districtEntities != null && districtEntities.size() > 0) {
+                    mDistrictAdapter.setData(districtEntities);
+                    mDistrictLoadingViewController.switchSuccess();
+                }
+            }
+        });
+        DistrictEntity cachedDistrict = mDistrictViewModel.getCachedDistrictEntity();
+        mToolbar.setTitle(cachedDistrict.getName());
+        mRegionCode = cachedDistrict.getRegionCode();
         rvDistrict.setLayoutManager(new LinearLayoutManager(this));
         rvDistrict.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         mDistrictAdapter = new DistrictAdapter(this, mRegionCode);

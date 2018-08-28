@@ -24,7 +24,7 @@ public class DistrictEntity implements Parcelable {
     @ColumnInfo(name = "name")
     private String name;
 
-    public DistrictEntity(String regionCode, String name) {
+    public DistrictEntity(@NonNull String regionCode, String name) {
         this.mRegionCode = regionCode;
         this.name = name;
     }
@@ -46,11 +46,12 @@ public class DistrictEntity implements Parcelable {
         }
     };
 
+    @NonNull
     public String getRegionCode() {
         return mRegionCode;
     }
 
-    public void setRegionCode(String regionCode) {
+    public void setRegionCode(@NonNull String regionCode) {
         mRegionCode = regionCode;
     }
 
@@ -69,14 +70,12 @@ public class DistrictEntity implements Parcelable {
 
         DistrictEntity entity = (DistrictEntity) o;
 
-        if (mRegionCode != null ? !mRegionCode.equals(entity.mRegionCode) : entity.mRegionCode != null)
-            return false;
-        return name != null ? name.equals(entity.name) : entity.name == null;
+        return mRegionCode.equals(entity.mRegionCode) && (name != null ? name.equals(entity.name) : entity.name == null);
     }
 
     @Override
     public int hashCode() {
-        int result = mRegionCode != null ? mRegionCode.hashCode() : 0;
+        int result = mRegionCode.hashCode();
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
