@@ -115,6 +115,12 @@ public class DistrictQueryActivity extends BaseActivity {
                 callPhone();
             }
         });
+        mLoadingViewController.setOnReloadClickListener(new LoadingViewController.OnReloadClickListener() {
+            @Override
+            public void onReloadClick() {
+                refreshData();
+            }
+        });
         mLoadingViewController.switchLoading();
         refreshData();
     }
@@ -144,6 +150,9 @@ public class DistrictQueryActivity extends BaseActivity {
         if (mRequestDisposable != null && !mRequestDisposable.isDisposed()) {
             mRequestDisposable.dispose();
             mRequestDisposable = null;
+        }
+        if (mQueryAdapter.getNormalItemCount() == 0) {
+            mLoadingViewController.switchLoading();
         }
         requestData();
     }

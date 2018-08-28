@@ -81,6 +81,15 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
                 HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, params, new PreSellParseProcessor()).subscribe(mDataSubscriber);
             }
         });
+        mLoadingViewController.setOnReloadClickListener(new LoadingViewController.OnReloadClickListener() {
+            @Override
+            public void onReloadClick() {
+                mAdapter.setDataRefreshing();
+                mPageableData.reset();
+                HtmlParser.getInstance().parseHtml(NetworkConstant.PRE_SELL_URL, new PreSellParseProcessor()).subscribe(mDataSubscriber);
+                HtmlParser.getInstance().parseHtml(NetworkConstant.HOME_BANNER, new BannerParseProcessor()).subscribe(mBannerSubscriber);
+            }
+        });
     }
 
     private void loadMoreData() {

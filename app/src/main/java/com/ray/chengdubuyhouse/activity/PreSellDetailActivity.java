@@ -12,17 +12,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ray.lib.base.BaseActivity;
 import com.ray.chengdubuyhouse.R;
+import com.ray.lib.base.BaseActivity;
 import com.ray.lib.base.BaseNetworkObserver;
-import com.ray.lib.network.HtmlParser;
-import com.ray.lib.network.processor.PreSellDetailParseProcessor;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
+import com.ray.lib.network.HtmlParser;
+import com.ray.lib.network.processor.PreSellDetailParseProcessor;
 
 import java.util.List;
 
-import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
 public class PreSellDetailActivity extends BaseActivity {
@@ -45,8 +44,14 @@ public class PreSellDetailActivity extends BaseActivity {
         mLoadingViewController = LoadingViewManager.register(mRecyclerDetail);
         mRecyclerDetail.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerDetail.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        String url = getIntent().getStringExtra("url");
+        final String url = getIntent().getStringExtra("url");
         mLoadingViewController.switchLoading();
+        mLoadingViewController.setOnReloadClickListener(new LoadingViewController.OnReloadClickListener() {
+            @Override
+            public void onReloadClick() {
+                HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor()).subscribe(new DetailObserver(PreSellDetailActivity.this));
+            }
+        });
         HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor()).subscribe(new DetailObserver(this));
     }
 

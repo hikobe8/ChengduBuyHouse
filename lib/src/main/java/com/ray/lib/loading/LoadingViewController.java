@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.ray.lib.R;
@@ -22,6 +23,18 @@ public class LoadingViewController {
     private View mTargetView;
 
     private View mLoadingLayout, mEmptyLayout, mErrorLayout;
+
+    private Button mBtnReload;
+
+    private OnReloadClickListener mOnReloadClickListener;
+
+    public void setOnReloadClickListener(OnReloadClickListener onReloadClickListener) {
+        mOnReloadClickListener = onReloadClickListener;
+    }
+
+    public interface OnReloadClickListener {
+        void onReloadClick();
+    }
 
     /**
      * for activity use
@@ -83,6 +96,7 @@ public class LoadingViewController {
         internalHideView(mTargetView);
         internalHideView(mLoadingLayout);
         internalHideView(mErrorLayout);
+        mErrorLayout.setEnabled(false);
         mEmptyLayout.setVisibility(View.VISIBLE);
 
     }
@@ -92,11 +106,26 @@ public class LoadingViewController {
         if (mLoadingMainLayout != null && mErrorLayout == null) {
             ViewStub viewStub = mLoadingMainLayout.findViewById(R.id.vs_error);
             mErrorLayout = viewStub.inflate();
+            mBtnReload = mErrorLayout.findViewById(R.id.btn_reload);
+            mBtnReload.setVisibility(mOnReloadClickListener == null ? View.INVISIBLE : View.VISIBLE);
+            if (mBtnReload.getVisibility() == View.VISIBLE) {
+                mBtnReload.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mOnReloadClickListener != null) {
+                            switchLoading();
+                            mOnReloadClickListener.onReloadClick();
+                        }
+                    }
+                });
+            }
+
         }
         internalHideView(mTargetView);
         internalHideView(mLoadingLayout);
         internalHideView(mEmptyLayout);
         mErrorLayout.setVisibility(View.VISIBLE);
+        mErrorLayout.setEnabled(true);
 
     }
 

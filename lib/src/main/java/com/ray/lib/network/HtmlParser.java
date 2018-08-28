@@ -80,7 +80,7 @@ public class HtmlParser {
                                     emitter.onNext(doc);
                                     emitter.onComplete();
                                 } catch (InterruptedIOException e) {
-                                    return;
+                                    throw new IllegalStateException("socket timeout exception");
                                 }
                             }
                         }
@@ -120,10 +120,8 @@ public class HtmlParser {
                                     }
                                     emitter.onNext(doc);
                                     emitter.onComplete();
-                                } catch (SocketTimeoutException e) {
-                                    return;
                                 } catch (InterruptedIOException e) {
-                                    return;
+                                    throw new IllegalStateException("socket timeout exception");
                                 }
                             }
                         }

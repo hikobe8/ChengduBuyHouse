@@ -49,6 +49,12 @@ public class BannerDetailActivity extends BaseActivity {
         mRecyclerView.addItemDecoration(new BannerDetailDividerItemDecoration(this));
         setupToolBar(toolbar);
         mLoadingViewController.switchLoading();
+        mLoadingViewController.setOnReloadClickListener(new LoadingViewController.OnReloadClickListener() {
+            @Override
+            public void onReloadClick() {
+                HtmlParser.getInstance().parseHtml(getIntent().getStringExtra("url"), new BannerDetailParseProcessor()).subscribe(new DetailObserver(BannerDetailActivity.this));
+            }
+        });
         HtmlParser.getInstance().parseHtml(getIntent().getStringExtra("url"), new BannerDetailParseProcessor()).subscribe(new DetailObserver(this));
     }
 
