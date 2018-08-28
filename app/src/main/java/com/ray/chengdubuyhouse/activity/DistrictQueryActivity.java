@@ -266,6 +266,7 @@ public class DistrictQueryActivity extends BaseActivity {
         mDistrictAdapter.setOnItemClickListener(new DistrictAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DistrictEntity districtEntity) {
+                setRefreshComplete(DistrictQueryActivity.this);
                 mDrawerLayout.closeDrawer(Gravity.END);
                 if (mRegionCode.equals(districtEntity.getRegionCode()))
                     return;
