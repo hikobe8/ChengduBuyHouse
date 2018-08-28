@@ -83,6 +83,9 @@ public class LoadingViewController {
         internalHideView(mTargetView);
         internalHideView(mEmptyLayout);
         internalHideView(mErrorLayout);
+        if (mErrorLayout != null) {
+            mErrorLayout.setEnabled(false);
+        }
         mLoadingLayout.setVisibility(View.VISIBLE);
 
     }
@@ -96,7 +99,9 @@ public class LoadingViewController {
         internalHideView(mTargetView);
         internalHideView(mLoadingLayout);
         internalHideView(mErrorLayout);
-        mErrorLayout.setEnabled(false);
+        if (mErrorLayout != null) {
+            mErrorLayout.setEnabled(false);
+        }
         mEmptyLayout.setVisibility(View.VISIBLE);
 
     }

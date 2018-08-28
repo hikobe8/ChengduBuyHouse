@@ -1,5 +1,7 @@
 package com.ray.lib.network;
 
+import android.util.Log;
+
 import com.ray.lib.network.processor.IHtmlParseProcessor;
 
 import org.jsoup.Jsoup;
@@ -15,7 +17,9 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.FormBody;
@@ -34,6 +38,15 @@ public class HtmlParser {
 
     public static HtmlParser getInstance() {
         return SingletonHolder.sInstance;
+    }
+
+    HtmlParser() {
+        RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                Log.e("ErrorHandler", throwable.getMessage());
+            }
+        });
     }
 
     public static class SingletonHolder {
@@ -68,25 +81,13 @@ public class HtmlParser {
 
     public <T> Observable<T> parseHtmlByOkHttp(final String url, final Map<String, String> paramsMap, final IHtmlParseProcessor<T> htmlParseProcess) {
         return Observable
-                .create(new ObservableOnSubscribe<Document>() {
+                .create(new ObservableOnSubscribe<Document>()  {
                     @Override
-                    public void subscribe(ObservableEmitter<Document> emitter) throws Exception {
-                        Call call = null;
-                        while (!emitter.isDisposed()) {
-                            if (call == null) {
-                                call = post(url, paramsMap);
-                                try {
-                                    Document doc = Jsoup.parse(call.execute().body().string());
-                                    emitter.onNext(doc);
-                                    emitter.onComplete();
-                                } catch (InterruptedIOException e) {
-                                    throw new IllegalStateException("socket timeout exception");
-                                }
-                            }
-                        }
-                        if (call != null && !call.isCanceled()) {
-                            call.cancel();
-                        }
+                    public void subscribe(ObservableEmitter<Document> emitter) throws Exception  {
+                        Call call = post(url, paramsMap);
+                        Document doc = Jsoup.parse(call.execute().body().string());
+                        emitter.onNext(doc);
+                        emitter.onComplete();
                     }
                 })
                 .onTerminateDetach()
@@ -109,22 +110,14 @@ public class HtmlParser {
                 .create(new ObservableOnSubscribe<Document>() {
                     @Override
                     public void subscribe(ObservableEmitter<Document> emitter) throws Exception {
-                        Document doc = null;
-                        while (!emitter.isDisposed()) {
-                            if (doc == null) {
-                                try {
-                                    if (paramsMap != null && paramsMap.size() > 0) {
-                                        doc = Jsoup.connect(url).data(paramsMap).get();
-                                    } else {
-                                        doc = Jsoup.connect(url).get();
-                                    }
-                                    emitter.onNext(doc);
-                                    emitter.onComplete();
-                                } catch (InterruptedIOException e) {
-                                    throw new IllegalStateException("socket timeout exception");
-                                }
-                            }
+                        Document doc;
+                        if (paramsMap != null && paramsMap.size() > 0) {
+                            doc = Jsoup.connect(url).data(paramsMap).get();
+                        } else {
+                            doc = Jsoup.connect(url).get();
                         }
+                        emitter.onNext(doc);
+                        emitter.onComplete();
                     }
                 })
                 .onTerminateDetach()
