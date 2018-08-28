@@ -25,6 +25,11 @@ public class QueryAdapter extends LoadMoreAdapter {
 
     private List<QueryResultBean> mResultBeanList = new ArrayList<>();
 
+    public void clear() {
+        mResultBeanList.clear();
+        notifyDataSetChanged();
+    }
+
     public interface CallPhoneCallback {
         void onMakeCall(String phone);
     }

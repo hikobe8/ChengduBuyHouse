@@ -9,11 +9,11 @@ import com.ray.lib.base.IKeepProguard;
  */
 public class PageableData implements IKeepProguard {
 
-    public int page;
+    public int page = 1;
     public int total;
 
     public void reset(){
-        page = 0;
+        page = 1;
         total = 0;
     }
 

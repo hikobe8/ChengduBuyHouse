@@ -273,6 +273,7 @@ public class DistrictQueryActivity extends BaseActivity {
                 mPageableData.reset();
                 mRegionCode = districtEntity.getRegionCode();
                 mLoadingViewController.switchLoading();
+                mQueryAdapter.clear();
                 refreshData();
                 SPUtil.getInstance(mActivity).putString(SPUtil.KEY.KEY_SELECTED_DISTRICT, districtEntity.toString());
                 mToolbar.setTitle(districtEntity.getName());
