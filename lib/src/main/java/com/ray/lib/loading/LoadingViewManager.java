@@ -3,7 +3,6 @@ package com.ray.lib.loading;
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
 
 /***
  *  Author : ryu18356@gmail.com
