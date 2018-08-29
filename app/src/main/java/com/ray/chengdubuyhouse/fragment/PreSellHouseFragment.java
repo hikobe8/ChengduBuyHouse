@@ -74,7 +74,6 @@ public class PreSellHouseFragment extends BaseFragment implements SwipeRefreshLa
         mAdapter.setOnLoadInErrorStateListener(new LoadMoreAdapter.OnLoadInErrorStateListener() {
             @Override
             public void onLoadInErrorState() {
-                mAdapter.setDataLoading();
                 Log.i("LoadMoreRecyclerView", mPageableData.page+"");
                 Map<String, String> params = new HashMap<>();
                 params.put("p", String.valueOf(mPageableData.page));

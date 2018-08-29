@@ -159,6 +159,7 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
                     if (mErrorView.getVisibility() != View.VISIBLE)
                         return;
                     if (mOnLoadInErrorStateListener != null) {
+                        switchState(LoadingMoreType.TYPE_LOADING);
                         mOnLoadInErrorStateListener.onLoadInErrorState();
                     }
                 }
