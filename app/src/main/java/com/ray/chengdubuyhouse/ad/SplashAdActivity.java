@@ -66,7 +66,6 @@ public class SplashAdActivity extends Activity {
                     public void onAdPresent() {
                         // 开屏广告展示
                         Log.d(TAG, "onAdPresent");
-                        mHandler.removeCallbacks(mRunnable);
                     }
 
                     @Override
@@ -85,10 +84,14 @@ public class SplashAdActivity extends Activity {
                     @Override
                     public void onAdFailed(String s) {
                         Log.e(TAG, "ad fail message : " + s);
+                        if (mContainer != null) {
+                            mContainer.setVisibility(View.GONE);
+                        }
                     }
 
                     @Override
                     public void onAdLoaded(int size) {
+                        mHandler.removeCallbacks(mRunnable);
                     }
 
                     @Override
