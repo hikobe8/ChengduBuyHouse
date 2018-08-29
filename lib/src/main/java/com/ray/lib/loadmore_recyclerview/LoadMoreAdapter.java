@@ -81,6 +81,7 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public void setFooterState(int footerState) {
         mFooterState = footerState;
+        notifyItemChanged(getNormalItemCount());
     }
 
     @NonNull

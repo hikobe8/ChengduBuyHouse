@@ -1,34 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/layout_loading"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:layout_height="wrap_content">
+        android:orientation="horizontal">
+
         <ProgressBar
             android:layout_width="36dp"
-            android:layout_height="36dp"/>
+            android:layout_height="36dp" />
+
         <TextView
-            android:layout_marginLeft="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="正在加载..."/>
+            android:layout_marginLeft="8dp"
+            android:text="正在加载..." />
     </LinearLayout>
 
 
     <include
-        android:visibility="invisible"
         android:id="@+id/layout_last"
-        layout="@layout/load_more_last_item"/>
+        layout="@layout/load_more_last_item"
+        android:visibility="invisible" />
 
     <include
-        android:visibility="invisible"
         android:id="@+id/layout_error"
-        layout="@layout/load_more_error_item"/>
+        layout="@layout/load_more_error_item"
+        android:visibility="invisible" />
 
 </FrameLayout>
