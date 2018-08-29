@@ -29,6 +29,8 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
     //脚部加载栏状态
     private int mFooterState = LoadingMoreType.TYPE_LOADING;
 
+    private LoadingHolder mLoadingHolder;
+
     public int getLoadState() {
         return mLoadState;
     }
@@ -81,6 +83,10 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public void setFooterState(int footerState) {
         mFooterState = footerState;
+        if (mLoadingHolder != null) {
+            mLoadingHolder.switchState(footerState);
+            return;
+        }
         notifyItemChanged(getNormalItemCount());
     }
 
@@ -88,9 +94,9 @@ public abstract class LoadMoreAdapter extends RecyclerView.Adapter<RecyclerView.
     @Override
     public final RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_FOOTER) {
-            LoadingHolder loadingHolder = new LoadingHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.load_more_loading_item, parent, false));
-            loadingHolder.setOnLoadInErrorStateListener(mOnLoadInErrorStateListener);
-            return loadingHolder;
+            mLoadingHolder = new LoadingHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.load_more_loading_item, parent, false));
+            mLoadingHolder.setOnLoadInErrorStateListener(mOnLoadInErrorStateListener);
+            return mLoadingHolder;
         }
         return onCreateNormalViewHolder(parent, viewType);
     }
