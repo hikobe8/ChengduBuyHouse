@@ -7,7 +7,6 @@ import com.ray.lib.network.processor.IHtmlParseProcessor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -41,7 +40,7 @@ public class HtmlParser {
     HtmlParser() {
         RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
             @Override
-            public void accept(Throwable throwable) throws Exception {
+            public void accept(Throwable throwable) {
                 Log.e("ErrorHandler", throwable.getMessage());
             }
         });
@@ -56,9 +55,8 @@ public class HtmlParser {
      *
      * @param url 请求地址
      * @return 返回数据
-     * @throws IOException
      */
-    private Call post(String url, Map<String, String> paramsMap) throws IOException {
+    private Call post(String url, Map<String, String> paramsMap) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)

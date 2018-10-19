@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.ray.chengdubuyhouse.R;
 import com.ray.lib.base.BaseActivity;
 import com.ray.lib.base.BaseNetworkObserver;
+import com.ray.lib.bean.PreSellHouseDetailBean;
 import com.ray.lib.loading.LoadingViewController;
 import com.ray.lib.loading.LoadingViewManager;
 import com.ray.lib.network.HtmlParser;
@@ -55,7 +56,7 @@ public class PreSellDetailActivity extends BaseActivity {
         HtmlParser.getInstance().parseHtml(url, new PreSellDetailParseProcessor()).subscribe(new DetailObserver(this));
     }
 
-    static class DetailObserver extends BaseNetworkObserver<PreSellDetailActivity, List<String>> {
+    static class DetailObserver extends BaseNetworkObserver<PreSellDetailActivity, List<PreSellHouseDetailBean>> {
 
         public DetailObserver(PreSellDetailActivity preSellDetailActivity) {
             super(preSellDetailActivity);
@@ -67,7 +68,7 @@ public class PreSellDetailActivity extends BaseActivity {
         }
 
         @Override
-        public void onNetworkNext(PreSellDetailActivity preSellDetailActivity, List<String> list) {
+        public void onNetworkNext(PreSellDetailActivity preSellDetailActivity, List<PreSellHouseDetailBean> list) {
             if (list == null || list.size() < 1) {
                 preSellDetailActivity.mLoadingViewController.switchEmpty();
             } else {
@@ -84,9 +85,9 @@ public class PreSellDetailActivity extends BaseActivity {
 
     static class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.DetailHolder> {
 
-        private List<String> mInfoList;
+        private List<PreSellHouseDetailBean> mInfoList;
 
-        DetailAdapter(List<String> infoList) {
+        DetailAdapter(List<PreSellHouseDetailBean> infoList) {
             mInfoList = infoList;
         }
 
@@ -121,8 +122,8 @@ public class PreSellDetailActivity extends BaseActivity {
                 super(itemView);
             }
 
-            void bindData(String text) {
-                ((TextView) itemView).setText(text);
+            void bindData(PreSellHouseDetailBean bean) {
+                ((TextView) itemView).setText(bean.getName());
             }
 
         }

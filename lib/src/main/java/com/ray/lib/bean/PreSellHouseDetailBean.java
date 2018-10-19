@@ -10,27 +10,21 @@ import android.os.Parcelable;
  */
 public class PreSellHouseDetailBean implements Parcelable{
 
-    private String address;
     private String name;
-    private String link;
-    private String date;
+    private String downloadUrl;
 
     public PreSellHouseDetailBean() {
     }
 
     protected PreSellHouseDetailBean(Parcel in) {
-        address = in.readString();
         name = in.readString();
-        link = in.readString();
-        date = in.readString();
+        downloadUrl = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(address);
         dest.writeString(name);
-        dest.writeString(link);
-        dest.writeString(date);
+        dest.writeString(downloadUrl);
     }
 
     @Override
@@ -50,14 +44,6 @@ public class PreSellHouseDetailBean implements Parcelable{
         }
     };
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getName() {
         return name;
     }
@@ -66,37 +52,11 @@ public class PreSellHouseDetailBean implements Parcelable{
         this.name = name;
     }
 
-    public String getLink() {
-        return link;
+    public String getDownloadUrl() {
+        return downloadUrl;
     }
 
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PreSellHouseDetailBean that = (PreSellHouseDetailBean) o;
-
-        return (address != null ? address.equals(that.address) : that.address == null) && (name != null ? name.equals(that.name) : that.name == null) && (link != null ? link.equals(that.link) : that.link == null);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = address != null ? address.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (link != null ? link.hashCode() : 0);
-        return result;
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
     }
 }
