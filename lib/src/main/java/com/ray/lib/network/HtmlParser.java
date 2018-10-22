@@ -38,12 +38,13 @@ public class HtmlParser {
     }
 
     HtmlParser() {
-        RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) {
-                Log.e("ErrorHandler", throwable.getMessage());
-            }
-        });
+        if (RxJavaPlugins.getErrorHandler() == null)
+            RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) {
+                    Log.e("ErrorHandler", throwable.getMessage());
+                }
+            });
     }
 
     public static class SingletonHolder {
@@ -69,7 +70,6 @@ public class HtmlParser {
         RequestBody formBody = builder.build();
         Request request = new Request.Builder()
                 .url(url)
-                .get()
                 .post(formBody)
                 .build();
         return client.newCall(request);
@@ -77,9 +77,9 @@ public class HtmlParser {
 
     public <T> Observable<T> parseHtmlByOkHttp(final String url, final Map<String, String> paramsMap, final IHtmlParseProcessor<T> htmlParseProcess) {
         return Observable
-                .create(new ObservableOnSubscribe<Document>()  {
+                .create(new ObservableOnSubscribe<Document>() {
                     @Override
-                    public void subscribe(ObservableEmitter<Document> emitter) throws Exception  {
+                    public void subscribe(ObservableEmitter<Document> emitter) throws Exception {
                         Call call = post(url, paramsMap);
                         Document doc = Jsoup.parse(call.execute().body().string());
                         emitter.onNext(doc);

@@ -4,24 +4,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.ray.chengdubuyhouse.BuildConfig;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.fragment.PreSellHouseFragment;
+import com.ray.lib.base.BaseActivity;
+import com.ray.lib.network.DownloadPackage;
+import com.ray.lib.network.RxDownloader;
 
-public class MainActivity extends AppCompatActivity
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+
+public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String CONTENT_FRAGMENT_TAG = "PreSell";
@@ -55,6 +57,32 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.fl_content, preSellHouseFragment, CONTENT_FRAGMENT_TAG)
                 .commit();
+        //fixme delete
+        RxDownloader.getInstance().download("https://www.cdfangxie.com/Public/uploadfile/file/20181020/20181020144327_72771.rar")
+                .subscribe(new Observer<DownloadPackage>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(DownloadPackage downloadPackage) {
+                        Log.e("download", Math.floor(downloadPackage.finishedRate*100) + "%");
+                        if (downloadPackage.downloadFinished) {
+                            Log.e("download", "download finished! " + downloadPackage.filePath);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     @Override
@@ -88,11 +116,12 @@ public class MainActivity extends AppCompatActivity
             startActivity(share_intent);
         } else if (id == R.id.nav_send) {
             Intent data=new Intent(Intent.ACTION_SENDTO);
-            data.setData(Uri.parse("mailto:hikobe8@163.com"));
-            data.putExtra(Intent.EXTRA_SUBJECT, "成都买房宝");
-            data.putExtra(Intent.EXTRA_TEXT, "");
-            startActivity(data);
-
+            if (data.resolveActivity(getPackageManager()) != null) {
+                data.setData(Uri.parse("mailto:hikobe8@163.com"));
+                data.putExtra(Intent.EXTRA_SUBJECT, "成都买房宝");
+                data.putExtra(Intent.EXTRA_TEXT, "");
+                startActivity(data);
+            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
