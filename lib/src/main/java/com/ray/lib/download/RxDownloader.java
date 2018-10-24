@@ -1,7 +1,8 @@
-package com.ray.lib.network;
+package com.ray.lib.download;
 
 import android.util.Log;
 
+import com.ray.lib.network.DownloadPackage;
 import com.ray.lib.util.StorageUtil;
 
 import java.io.BufferedInputStream;
@@ -42,7 +43,7 @@ public class RxDownloader {
             });
     }
 
-    public static class SingletonHolder {
+    private static class SingletonHolder {
         static RxDownloader sInstance = new RxDownloader();
     }
 

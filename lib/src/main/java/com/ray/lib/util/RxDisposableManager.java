@@ -20,6 +20,14 @@ public class RxDisposableManager {
             mDisposables.add(disposable);
     }
 
+    public void dispose(Disposable disposable) {
+        if (disposable != null) {
+            boolean remove = mDisposables.remove(disposable);
+            if (remove)
+                disposable.dispose();
+        }
+    }
+
     public void dispose() {
         for (Disposable disposable : mDisposables) {
             if (disposable != null && !disposable.isDisposed()) {

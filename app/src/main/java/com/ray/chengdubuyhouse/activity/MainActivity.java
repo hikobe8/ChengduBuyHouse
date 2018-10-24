@@ -1,9 +1,12 @@
 package com.ray.chengdubuyhouse.activity;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
@@ -17,11 +20,8 @@ import com.ray.chengdubuyhouse.BuildConfig;
 import com.ray.chengdubuyhouse.R;
 import com.ray.chengdubuyhouse.fragment.PreSellHouseFragment;
 import com.ray.lib.base.BaseActivity;
+import com.ray.lib.download.DownloadService;
 import com.ray.lib.network.DownloadPackage;
-import com.ray.lib.network.RxDownloader;
-
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -57,33 +57,64 @@ public class MainActivity extends BaseActivity
                 .beginTransaction()
                 .replace(R.id.fl_content, preSellHouseFragment, CONTENT_FRAGMENT_TAG)
                 .commit();
-        //fixme delete
-        RxDownloader.getInstance().download("https://www.cdfangxie.com/Public/uploadfile/file/20181020/20181020144327_72771.rar")
-                .subscribe(new Observer<DownloadPackage>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        addDisposable(d);
-                    }
-
-                    @Override
-                    public void onNext(DownloadPackage downloadPackage) {
-                        Log.e("download", Math.floor(downloadPackage.finishedRate*100) + "%");
-                        if (downloadPackage.downloadFinished) {
-                            Log.e("download", "download finished! " + downloadPackage.filePath);
+        Intent intent = new Intent(this, DownloadService.class);
+        bindService(intent, mConnection, BIND_AUTO_CREATE);
+        drawer.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mBound) {
+                    mService.startDownload("https://www.cdfangxie.com/Public/uploadfile/file/20181020/20181020144327_72771.rar");
+                    mService.addProgressListener("https://www.cdfangxie.com/Public/uploadfile/file/20181020/20181020144327_72771.rar", new DownloadService.ProgressListener() {
+                        @Override
+                        public void onProgressUpdated(String downloadUrl, DownloadPackage downloadPackage) {
+                            if (downloadPackage.downloadFinished) {
+                                Log.e("download", "download finished! " + downloadPackage.filePath);
+                            }
                         }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+                    });
+                    mService.startDownload("https://www.cdfangxie.com/Public/uploadfile/file/20181023/20181023210039_20959.rar");
+                    mService.addProgressListener("https://www.cdfangxie.com/Public/uploadfile/file/20181023/20181023210039_20959.rar", new DownloadService.ProgressListener() {
+                        @Override
+                        public void onProgressUpdated(String downloadUrl, DownloadPackage downloadPackage) {
+                            if (downloadPackage.downloadFinished) {
+                                Log.e("download", "download finished! " + downloadPackage.filePath);
+                            }
+                        }
+                    });
+                    mService.startDownload("https://www.cdfangxie.com/Public/uploadfile/file/20181023/20181023170545_36267.rar");
+                    mService.addProgressListener("https://www.cdfangxie.com/Public/uploadfile/file/20181023/20181023170545_36267.rar", new DownloadService.ProgressListener() {
+                        @Override
+                        public void onProgressUpdated(String downloadUrl, DownloadPackage downloadPackage) {
+                            if (downloadPackage.downloadFinished) {
+                                Log.e("download", "download finished! " + downloadPackage.filePath);
+                            }
+                        }
+                    });
+                }
+            }
+        }, 500);
     }
+
+    //fixme delete
+    private DownloadService mService;
+    private boolean mBound;
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     @Override
     public void onBackPressed() {
